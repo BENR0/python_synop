@@ -172,23 +172,23 @@ class synop(object):
 
     def _handle_sTTT(self, code):
         """
-		Decode temperature
-		
-		Parameters
-		----------
-		code : str
-			Temperature with first charater defining the sign or
-			type of unit (°C or relative humidity in % for dewpoint)
-			
-		Returns
-		-------
-		float
-			Temperature in degree Celsius
-			
-		"""
+        Decode temperature
+        
+        Parameters
+        ----------
+        code : str
+            Temperature with first charater defining the sign or
+            type of unit (°C or relative humidity in % for dewpoint)
+            
+        Returns
+        -------
+        float
+            Temperature in degree Celsius
+            
+        """
         sign = int(code[0])
         value = int(code[1:])
-		
+        
         if sign == 0:
             sign = -1
         elif sign == 1:
@@ -197,122 +197,122 @@ class synop(object):
             return value
 
         value = sign * value * 0.1
-		
+        
         return value
 
 
-	def _handle_PPPP(self, code):
-		"""
-		Decode pressure
-		
-		Parameters
-		----------
-		code : str
-			Pressure code without thousands in  1/10 Hectopascal.
-			If last character of code is "/" pressure is given as
-			full Hectopascal.
-			
-		Returns
-		-------
-		float
-			Pressure in Hectopascal
-			
-		"""
-		if code[-1] == "/":
-			value = int(code[0:-1])
-		else:
-			value = int(code) * 0.1
-			
-		value = 1000 + value
-		
-		return value
+    def _handle_PPPP(self, code):
+        """
+        Decode pressure
+        
+        Parameters
+        ----------
+        code : str
+            Pressure code without thousands in  1/10 Hectopascal.
+            If last character of code is "/" pressure is given as
+            full Hectopascal.
+            
+        Returns
+        -------
+        float
+            Pressure in Hectopascal
+            
+        """
+        if code[-1] == "/":
+            value = int(code[0:-1])
+        else:
+            value = int(code) * 0.1
+            
+        value = 1000 + value
+        
+        return value
 
 
-	@static_method
-	def _handle_vis(code):
-		"""
-		Decode visibility of synop report
-		
-		Parameters
-		----------
-		code : str
-			VV part of iihVV group
-		
-		Returns
-		-------
-		float
-			Visibility in km
+    @static_method
+    def _handle_vis(code):
+        """
+        Decode visibility of synop report
+        
+        Parameters
+        ----------
+        code : str
+            VV part of iihVV group
+        
+        Returns
+        -------
+        float
+            Visibility in km
 
-		"""
-		vislut = {90: 0.05,
-				  91: 0.05,
-				  92: 0.2,
-				  93: 0.5,
-				  94: 1,
-				  95: 2,
-				  96: 4,
-				  97: 10,
-				  98: 20,
-				  99: 50}
-		
-		if not code == "//":
-			code = int(code)
-		else:
-			return "NA"
-		
-		if code <= 50:
-			dist = 0.1 * code
-		elif code > 50 and code <= 80:
-			dist = 6 + (code - 56)
-		elif code > 80 and code <= 89:
-			dist = 35 + (code - 81) * 5
-		else:
-			dist = vislut[code]
-		
-		return dist
+        """
+        vislut = {90: 0.05,
+                  91: 0.05,
+                  92: 0.2,
+                  93: 0.5,
+                  94: 1,
+                  95: 2,
+                  96: 4,
+                  97: 10,
+                  98: 20,
+                  99: 50}
+        
+        if not code == "//":
+            code = int(code)
+        else:
+            return "NA"
+        
+        if code <= 50:
+            dist = 0.1 * code
+        elif code > 50 and code <= 80:
+            dist = 6 + (code - 56)
+        elif code > 80 and code <= 89:
+            dist = 35 + (code - 81) * 5
+        else:
+            dist = vislut[code]
+        
+        return dist
 
 
     def _handle_iihVV(self, d):
-		"""
-		Handles iihVV group in section 1
+        """
+        Handles iihVV group in section 1
 
-		i: precipitation group indicator (ir)
-		i: station type and weather group indicator (ix)
-		h: cloud base of lowest observed cloud
-		VV: horizontal visibility
+        i: precipitation group indicator (ir)
+        i: station type and weather group indicator (ix)
+        h: cloud base of lowest observed cloud
+        VV: horizontal visibility
 
-		Parameters
-		----------
+        Parameters
+        ----------
         d : dict
             re groupdict
 
-		"""
-		precip_group_code = {"0": "Niederschlag wird in den Abschnitten 1 und 3 gemeldet",
-							 "1": "Niederschlag wird nur in Abschnitt 1 gemeldet",
-							 "2": "Niederschlag wird nur in Abschnitt 3 gemeldet",
-							 "3": "Niederschlag nicht gemeldet -- kein Niederschlag vorhanden",
-							 "4": "Niederschlag nicht gemeldet -- Niederschlagsmessung nicht durchgeführt oder nicht vorgesehen"}
+        """
+        precip_group_code = {"0": "Niederschlag wird in den Abschnitten 1 und 3 gemeldet",
+                             "1": "Niederschlag wird nur in Abschnitt 1 gemeldet",
+                             "2": "Niederschlag wird nur in Abschnitt 3 gemeldet",
+                             "3": "Niederschlag nicht gemeldet -- kein Niederschlag vorhanden",
+                             "4": "Niederschlag nicht gemeldet -- Niederschlagsmessung nicht durchgeführt oder nicht vorgesehen"}
 
-		station_operation_type_code = {"1": "bemannte Station -- Wettergruppe wird gemeldet",
-									   "2": "bemannte Station -- Wettergruppe nicht gemeldet -- kein signifikantes Wetter",
-									   "3": "bemannte Station -- Wettergruppe nicht gemeldet -- Wetterbeobachtung nicht durchgeführt",
-									   "4": "automatische Station, Typ 1 -- Wettergruppe gemeldet",
-									   "5": "automatische Station, Typ 1 -- Wettergruppe nicht gemeldet -- kein signifikantes Wetter",
-									   "6": "automatische Station, Typ 2 -- Wettergruppe nicht gemeldet -- Wetter nicht feststellbar",
-									   "7": "automatische Station, Typ 2 -- Wettergruppe wird gemeldet"}
+        station_operation_type_code = {"1": "bemannte Station -- Wettergruppe wird gemeldet",
+                                       "2": "bemannte Station -- Wettergruppe nicht gemeldet -- kein signifikantes Wetter",
+                                       "3": "bemannte Station -- Wettergruppe nicht gemeldet -- Wetterbeobachtung nicht durchgeführt",
+                                       "4": "automatische Station, Typ 1 -- Wettergruppe gemeldet",
+                                       "5": "automatische Station, Typ 1 -- Wettergruppe nicht gemeldet -- kein signifikantes Wetter",
+                                       "6": "automatische Station, Typ 2 -- Wettergruppe nicht gemeldet -- Wetter nicht feststellbar",
+                                       "7": "automatische Station, Typ 2 -- Wettergruppe wird gemeldet"}
 
-		cloud_height_0_code = {"0": "0 bis 49 m (0 bis 166 ft)",
-							   "1": "50 bis 99 m (167 - 333 ft)",
-							   "2": "100 bis 199 m (334 - 666 ft)",
-							   "3": "200 bis 299 m (667 - 999 ft)",
-							   "4": "300 bis 599 m (1000 - 1999 ft)",
-							   "5": "600 bis 999 m (2000 - 3333 ft)",
-							   "6": "1000 bis 1499 m (3334 - 4999 ft)",
-							   "7": "1500 bis 1999 m (5000 - 6666 ft)",
-							   "8": "2000 bis 2499 m (6667 - 8333 ft)",
-							   "9": "2500 m oder höher (> 8334 ft) oder wolkenlos",
-							   "/": "unbekannt"}
-		
+        cloud_height_0_code = {"0": "0 bis 49 m (0 bis 166 ft)",
+                               "1": "50 bis 99 m (167 - 333 ft)",
+                               "2": "100 bis 199 m (334 - 666 ft)",
+                               "3": "200 bis 299 m (667 - 999 ft)",
+                               "4": "300 bis 599 m (1000 - 1999 ft)",
+                               "5": "600 bis 999 m (2000 - 3333 ft)",
+                               "6": "1000 bis 1499 m (3334 - 4999 ft)",
+                               "7": "1500 bis 1999 m (5000 - 6666 ft)",
+                               "8": "2000 bis 2499 m (6667 - 8333 ft)",
+                               "9": "2500 m oder höher (> 8334 ft) oder wolkenlos",
+                               "/": "unbekannt"}
+
         iihVV = {"precip_group": precip_group_code[d["ir"]],
                  "station_operation": station_operation_type_code[d["ix"]],
                  "cloud_height": cloud_height_0_code[d["h"]],
@@ -321,20 +321,20 @@ class synop(object):
         return iihVV
 
 
-	def _handle_Nddff(self, d):
-		"""
-		Handles Nddff group in section 1
+    def _handle_Nddff(self, d):
+        """
+        Handles Nddff group in section 1
 
         N: total cloud cover in 1/8
         dd: wind direction in dekadegree (10 minute mean)
         ff: wind speed (10 minute mean)
 
-		Parameters
-		----------
+        Parameters
+        ----------
         d : dict
             re groupdict
 
-		"""
+        """
         cloud_cover = d["N"]
         if cloud_cover == "/":
             #not observed
@@ -369,27 +369,27 @@ class synop(object):
         return Nddff
 
 
-	def _handle_5appp(self, d):
-		"""
-		Handles 5appp group in section 1
+    def _handle_5appp(self, d):
+        """
+        Handles 5appp group in section 1
 
         a: type of pressure tendency
         ppp: absolute pressure change over last three hours in 1/10 Hectopascal
 
 
-		Parameters
-		----------
+        Parameters
+        ----------
         d : dict
             re groupdict
 
-		"""
-		a_code = {"0": "erst steigend, dann fallend -- resultierender Druck gleich oder höher als zuvor",
-				  "1": "erst steigend, dann gleichbleibend -- resultierender Druck höher als zuvor",
-				  "2": "konstant steigend -- resultierender Druck höher als zuvor",
-				  "3": "erst fallend oder gleichbleibend, dann steigend -- resultierender Druck höher als zuvor",
-				  "4": "gleichbleibend -- resultierender Druck unverändert",
-				  "5": "erst fallend, dann steigend -- resultierender Druck gleich oder tiefer als zuvor",
-				  "6": "erst fallend, dann gleichbleibend -- resultierender Druck tiefer als zuvor",
+        """
+        a_code = {"0": "erst steigend, dann fallend -- resultierender Druck gleich oder höher als zuvor",
+                  "1": "erst steigend, dann gleichbleibend -- resultierender Druck höher als zuvor",
+                  "2": "konstant steigend -- resultierender Druck höher als zuvor",
+                  "3": "erst fallend oder gleichbleibend, dann steigend -- resultierender Druck höher als zuvor",
+                  "4": "gleichbleibend -- resultierender Druck unverändert",
+                  "5": "erst fallend, dann steigend -- resultierender Druck gleich oder tiefer als zuvor",
+                  "6": "erst fallend, dann gleichbleibend -- resultierender Druck tiefer als zuvor",
                   "7": "konstant fallend -- resultierender Druck tiefer als zuvor",
                   "8": "erst steigend oder gleichbleibend, dann fallend -- resultierender Druck tiefer als zuvor"}
 
@@ -399,20 +399,20 @@ class synop(object):
         return appp
 
 
-	def _handle_6RRRt(self, d):
-		"""
-		Handles 6RRRt group in section 1
+    def _handle_6RRRt(self, d):
+        """
+        Handles 6RRRt group in section 1
 
         RRR: precipitation amount in mm
         t: reference time
 
 
-		Parameters
-		----------
+        Parameters
+        ----------
         d : dict
             re groupdict
 
-		"""
+        """
         t_code = {"0": "nicht aufgeführter oder vor dem Termin endender Zeitraum",
                   "1": "6 Stunden",
                   "2": "12 Stunden",
@@ -439,28 +439,28 @@ class synop(object):
         return RRRt
 
 
-	def _handle_7wwWW(self, d):
-		"""
-		Handles 7wwWW group in section 1
+    def _handle_7wwWW(self, d):
+        """
+        Handles 7wwWW group in section 1
         
         ww: current weather
         W: weather course (W1)
         W: weather course (W2)
 
 
-		Parameters
-		----------
+        Parameters
+        ----------
         d : dict
             re groupdict
 
-		"""
+        """
 
         return d
 
 
-	def _handle_8NCCC(self, d):
-		"""
-		Handles 8NCCC group in section 1
+    def _handle_8NCCC(self, d):
+        """
+        Handles 8NCCC group in section 1
 
         N: amount of low clouds if not present amount of medium high clouds
         C: type of low clouds (CL)
@@ -468,19 +468,19 @@ class synop(object):
         C: type of high clouds (CH)
 
 
-		Parameters
-		----------
+        Parameters
+        ----------
         d : dict
             re groupdict
 
-		"""
+        """
 
         return d
 
 
-	def _handle_9GGgg(self, d):
-		"""
-		Handles 9GGgg group in section 1
+    def _handle_9GGgg(self, d):
+        """
+        Handles 9GGgg group in section 1
 
         Observation time (UTC)
 
@@ -489,12 +489,12 @@ class synop(object):
 
 
 
-		Parameters
-		----------
+        Parameters
+        ----------
         d : dict
             re groupdict
 
-		"""
+        """
         time = d["observation_time"]
 
         return d
