@@ -150,19 +150,21 @@ class synop(object):
         self.datetime = None
         self.station_id = None
 
-		sections = sections_re.match(self.raw).groupdict()
+		self.decoded = sections_re.match(self.raw).groupdict()
 
         #split raw report into its sections then split each section into
         #its groups and handle (decode) each group
-		for sname, sraw in sections.items():
+		for sname, sraw in self.decoded.items():
 			pattern, ghandlers = self.handlers[sname]
-			sec_groups = patter.match(sraw).groupdict()
-			for gname, graw in sec_groups.items():
+			#sec_groups = patter.match(sraw).groupdict()
+            self.decoded[sname] = pattern.match(sraw).groupdict()
+			#for gname, graw in sec_groups.items():
+			for gname, graw in self.decoded[sname].items():
                 gpattern, ghandler = ghandlers[gname]
                 group = gpatter.match(graw)
                 _report_match(ghandler, group.group())
 
-                ghandler(gname, group.groupdict())
+                self.decoded[sname][gname] = ghandler(gname, group.groupdict())
         
 
 
@@ -342,12 +344,13 @@ class synop(object):
 							   "9": "2500 m oder höher (> 8334 ft) oder wolkenlos",
 							   "/": "unbekannt"}
 		
-        precip_group = precip_group_code[d["ir"]]
-        station_operation = station_operation_type_code[d["ix"]]
-        cloud_height = cloud_height_0_code[d["h"]]
-        vis = self._handle_vis(d["VV"])
+        iihVV = {"precip_group": precip_group_code[d["ir"]],
+                 "station_operation": station_operation_type_code[d["ix"]],
+                 "cloud_height": cloud_height_0_code[d["h"]],
+                 "vis": self._handle_vis(d["VV"])}
 
-        return
+
+        return iihVV
 
 
 	def _handle_Nddff(self, d):
@@ -391,7 +394,11 @@ class synop(object):
         #by the 00fff group
         wind_speed = int(d["ff"])
 
-        return
+        Nddff = {"cloud_cover": cloud_cover,
+                 "wind_dir": wind_dir,
+                 "wind_speed": wind_speed}
+
+        return Nddff
 
 
 	def _handle_5appp(self, d):
@@ -418,10 +425,10 @@ class synop(object):
                   "7": "konstant fallend -- resultierender Druck tiefer als zuvor",
                   "8": "erst steigend oder gleichbleibend, dann fallend -- resultierender Druck tiefer als zuvor")
 
-        p_tendency = a_code[d["a"]]
-        p_diff = self._handle_PPPP(d["ppp"])
+        appp = {"p_tendency": a_code[d["a"]],
+                 "p_diff": self._handle_PPPP(d["ppp"])}
 
-        return
+        return appp
 
 
 	def _handle_6RRRt(self, d):
@@ -459,7 +466,9 @@ class synop(object):
                 #only traces of precipitation not measurable < 0.05
                 precip = 0.05
 
-        return
+        RRRt = {"precip": precip,
+                "ref_time": precip_ref_time}
+        return RRRt
 
 
 	def _handle_7wwWW(self, d):
@@ -478,7 +487,7 @@ class synop(object):
 
 		"""
 
-        return
+        return d
 
 
 	def _handle_8NCCC(self, d):
@@ -498,7 +507,7 @@ class synop(object):
 
 		"""
 
-        return
+        return d
 
 
 	def _handle_9GGgg(self, d):
@@ -520,7 +529,7 @@ class synop(object):
 		"""
         time = d["observation_time"]
 
-        return
+        return d
 
 
     def __str__(self):
