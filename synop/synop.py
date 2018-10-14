@@ -47,7 +47,7 @@ section_1_re  = re.compile(r"""(?P<iihVV>\d{5})\s+
                                (5(?P<5appp>\d{4})\s+)?
                                (6(?P<6RRRt>\d{4})\s+)?
                                (7(?P<7wwW>\d{4})\s+)?
-                               (8(?P<8NCCC>(\d|/){4})\s+
+                               (8(?P<8NCCC>(\d|/){4})\s+)?
                                (9(?P<9GGgg>\d{4})\s+)?""",
                                re.VERBOSE)
 
@@ -67,8 +67,8 @@ sec1_handlers = (section_1_re,
                  {"iihVV": (s1_iihVV_re, _handle_iihVV),
                   "Nddff": (s1_Nddff_re, _handle_Nddff),
                   "00fff": (s1_00fff_re, _handle_00fff),
-                  "1sTTT": (s1_1sTTT_re, _handle_sTTT,)
-                  "2sTTT": (s1_2sTTT_re, _handle_sTTT,)
+                  "1sTTT": (s1_1sTTT_re, _handle_sTTT)
+                  "2sTTT": (s1_2sTTT_re, _handle_sTTT)
                   "3PPPP": (s1_3PPPP_re, _handle_PPPP),
                   "4PPPP": (s1_4PPPP_re, _handle_PPPP),
                   "5appp": (s1_5appp_re, _handle_5appp),
@@ -78,8 +78,9 @@ sec1_handlers = (section_1_re,
                   "9GGgg": (s1_9GGgg_re, _handle_9GGgg),
                  })
 
-sec2_handlers = (section_2_re,
-                 {"": })
+#sec2_handlers = (section_2_re,
+                 #{"": })
+sec2_handlers = "test"
 
 #split section 3
 #separate handling of groups
@@ -95,21 +96,50 @@ section_3_re  = re.compile(r"""(?P<tmax_12>(1(?P<sign>\d)(?P<value>\d\d\d)\s+))?
                                (?P<special_weather>(9(?P<code1>\d\d\d\d)\s+){0,6})?""",
                                re.VERBOSE)
 
+section_3_re = re.compile(r"""(0(?P<0xxxx>\d{4}\s+))?
+                              (1(?P<1sTTT>\d{4}\s+)?
+                              (2(?P<2sTTT>\d{4}\s+))?
+                              (3(?P<3EsTT>\d{4}\s+))?
+                              (4(?P<4Esss>(\d|/)\d{3}\s+))?
+                              (55(?P<55SSS>\d\d\d)\s+(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?)?
+                              (553(?P<553SS>\d\d)\s+(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?)?
+                              (6(?P<6RRRt>(\d\d\d|///)\d\s+))?
+                              (7(?P<7RRRR>\d{4}\s+))?
+                              ((8(?P<8NChh>\d(\d|/)\d\d\s+)?){0,4})?
+                              (9(?P<9SSss>\d{4}\s+)?)""",
+                              re.VERBOSE)
+
+
 sec3_handlers = (section_3_re,
-                 {"": })
+                 {"0xxxx": _default_handler,
+                  "1sTTT": _default_handler,
+                  "2sTTT": _default_handler,
+                  "3EsTT": _default_handler,
+                  "4Esss": _default_handler,
+                  "55SSS": _default_handler,
+                  "553SS": _default_handler,
+                  "6RRRt": _default_handler,
+                  "7RRRR": _default_handler,
+                  "8NChh": _default_handler,
+                  "9SSss": _default_handler,
+                 })
 
-sec4_handlers = (section_4_re,
-                 {"": })
+#sec4_handlers = (section_4_re,
+                 #{"": })
 
-sec5_handlers = (section_5_re,
-                 {"": })
+#sec5_handlers = (section_5_re,
+                 #{"": })
 
-sec6_handlers = (section_6_re,
-                 {"": })
+#sec6_handlers = (section_6_re,
+                 #{"": })
 
-sec9_handlers = (section_9_re,
-                     {"": })
+#sec9_handlers = (section_9_re,
+                     #{"": })
 
+sec4_handlers = "test"
+sec5_handlers = "test"
+sec6_handlers = "test"
+sec9_handlers = "test"
 
 def _report_match(handler, match):
     """
@@ -155,16 +185,19 @@ class synop(object):
         #split raw report into its sections then split each section into
         #its groups and handle (decode) each group
 		for sname, sraw in self.decoded.items():
-			pattern, ghandlers = self.handlers[sname]
-			#sec_groups = patter.match(sraw).groupdict()
-            self.decoded[sname] = pattern.match(sraw).groupdict()
-			#for gname, graw in sec_groups.items():
-			for gname, graw in self.decoded[sname].items():
-                gpattern, ghandler = ghandlers[gname]
-                group = gpatter.match(graw)
-                _report_match(ghandler, group.group())
+            if not sraw is None:
+                pattern, ghandlers = self.handlers[sname]
+                #sec_groups = patter.match(sraw).groupdict()
+                self.decoded[sname] = pattern.match(sraw).groupdict()
+                #for gname, graw in sec_groups.items():
+                for gname, graw in self.decoded[sname].items():
+                    gpattern, ghandler = ghandlers[gname]
+                    group = gpatter.match(graw)
+                    _report_match(ghandler, group.group())
 
-                self.decoded[sname][gname] = ghandler(gname, group.groupdict())
+                    self.decoded[sname][gname] = ghandler(gname, group.groupdict())
+            else:
+                self.decoded[sname] = None
         
 
 
