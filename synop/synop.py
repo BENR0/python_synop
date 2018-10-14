@@ -592,4 +592,28 @@ class synop(object):
 
 
     def __str__(self):
-        return NotImplementedError
+        def prettydict(d, indent = 0):
+            """
+            Print dict (of dict) pretty with indent
+
+            Parameters
+            ----------
+            d : dict
+
+            Returns
+            -------
+            print
+
+            """
+            for key, value in d.items():
+                if isinstance(value, dict):
+                    print("\t" * indent + str(key) + ":")
+                    prettydict(value, indent + 1)
+                else:
+                    #print("\t" * (indent + 1) + str(value))
+                    print("\t" * indent + str(key) + ": " +  str(value))
+            return
+
+        prettydict(self.decoded)
+
+        return
