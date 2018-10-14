@@ -44,18 +44,18 @@ section_1_re  = re.compile(r"""(?P<iihVV>\d{5})\s+
                                (9(?P<GGgg>\d{4})\s+)?""",
                                re.VERBOSE)
 
-s1_iihVV_re = re.compile(r"""(?P<ir>\d)(?P<ix>\d)(?P<h>\d)(?P<VV>\d\d))""", re.VERBOSE)
+s1_iihVV_re = re.compile(r"""(?P<ir>\d)(?P<ix>\d)(?P<h>\d)(?P<VV>\d\d)""", re.VERBOSE)
 s1_Nddff_re = re.compile(r"""(?P<N>\d)(?P<dd>\d\d)(?P<ff>\d\d)""", re.VERBOSE)
 s1_00fff_re = re.compile(r"""(?P<wind_speed>\d{3})""", re.VERBOSE)
 s1_1sTTT_re = re.compile(r"""(?P<air_t>\d{4})""", re.VERBOSE)
 s1_2sTTT_re = re.compile(r"""(?P<dewp>\d{4})""", re.VERBOSE)
-s1_3PPPP_re = re.compile(r"""(?P<p_baro>*)""", re.VERBOSE)
-s1_4PPPP_re = re.compile(r"""(?P<p_slv>*)""", re.VERBOSE)
+s1_3PPPP_re = re.compile(r"""(?P<p_baro>.*)""", re.VERBOSE)
+s1_4PPPP_re = re.compile(r"""(?P<p_slv>.*)""", re.VERBOSE)
 s1_5appp_re = re.compile(r"""(?P<a>\d)(?P<ppp>\d{3})""", re.VERBOSE)
 s1_6RRRt_re = re.compile(r"""(?P<RRR>\d{3})(?P<t>(\d|/))""", re.VERBOSE)
 s1_7wwWW_re = re.compile(r"""(?P<ww>\d{2})(?P<W1>\d)(?P<W2>\d)""", re.VERBOSE)
 s1_8NCCC_re = re.compile(r"""(?P<N>\d)(?P<CL>(\d|/))(?P<CM>(\d|/))(?P<CH>(\d|/))""", re.VERBOSE)
-s1_9GGgg_re = re.compile(r"""(?P<observation_time>*)""", re.VERBOSE)
+s1_9GGgg_re = re.compile(r"""(?P<observation_time>.*)""", re.VERBOSE)
 
 
 #split section 3
@@ -73,16 +73,16 @@ section_3_re  = re.compile(r"""(?P<tmax_12>(1(?P<sign>\d)(?P<value>\d\d\d)\s+))?
                                re.VERBOSE)
 
 section_3_re = re.compile(r"""(0(?P<xxxx>\d{4}\s+))?
-                              (1(?P<asTTT>\d{4}\s+)?
+                              (1(?P<asTTT>\d{4}\s+))?
                               (2(?P<bsTTT>\d{4}\s+))?
                               (3(?P<EsTT>\d{4}\s+))?
                               (4(?P<Esss>(\d|/)\d{3}\s+))?
-                              (55(?P<SSS>\d\d\d)\s+(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?)?
-                              (553(?P<SS>\d\d)\s+(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?)?
+                              ((55(?P<SSS>\d\d\d)\s+)(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?)?
+                              ((553(?P<SS>\d\d)\s+)(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?)?
                               (6(?P<RRRt>(\d\d\d|///)\d\s+))?
                               (7(?P<RRRR>\d{4}\s+))?
                               ((8(?P<NChh>\d(\d|/)\d\d\s+)?){0,4})?
-                              (9(?P<SSss>\d{4}\s+)?)""",
+                              (9(?P<SSss>\d{4}\s+))?""",
                               re.VERBOSE)
 
 
