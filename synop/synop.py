@@ -31,15 +31,15 @@ section_0_re = re.compile(r"""(?P<datetime>[\d]{12})\s+
 #split section 1
 #separate handling of groups because resulting dictionary can not contain double regex group names
 section_1_re  = re.compile(r"""(?P<iihVV>\d{5})\s+
-                               (?P<Nddff>(\d|/)\d{3})\s+
+                               (?P<Nddff>(\d|/)\d{4})\s+
                                (00(?P<fff>\d{3})\s+)?
-                               (1(?P<asTTT>\d{4})\s+)?
-                               (2(?P<bsTTT>\d{4})\s+)?
-                               (3(?P<aPPPP>(\d\d\d\d|\d\d\d\/))\s+)?
-                               (4(?P<bPPPP>(\d\d\d\d|\d\d\d\/))\s+)?
+                               (1(?P<air_t>\d{4})\s+)?
+                               (2(?P<dewp>\d{4})\s+)?
+                               (3(?P<p_baro>(\d\d\d\d|\d\d\d\/))\s+)?
+                               (4(?P<p_slv>(\d\d\d\d|\d\d\d\/))\s+)?
                                (5(?P<appp>\d{4})\s+)?
                                (6(?P<RRRt>\d{4})\s+)?
-                               (7(?P<wwW>\d{4})\s+)?
+                               (7(?P<wwWW>\d{4})\s+)?
                                (8(?P<NCCC>(\d|/){4})\s+)?
                                (9(?P<GGgg>\d{4})\s+)?""",
                                re.VERBOSE)
@@ -47,10 +47,10 @@ section_1_re  = re.compile(r"""(?P<iihVV>\d{5})\s+
 s1_iihVV_re = re.compile(r"""(?P<ir>\d)(?P<ix>\d)(?P<h>\d)(?P<VV>\d\d)""", re.VERBOSE)
 s1_Nddff_re = re.compile(r"""(?P<N>\d)(?P<dd>\d\d)(?P<ff>\d\d)""", re.VERBOSE)
 s1_00fff_re = re.compile(r"""(?P<wind_speed>\d{3})""", re.VERBOSE)
-s1_1sTTT_re = re.compile(r"""(?P<air_t>\d{4})""", re.VERBOSE)
-s1_2sTTT_re = re.compile(r"""(?P<dewp>\d{4})""", re.VERBOSE)
-s1_3PPPP_re = re.compile(r"""(?P<p_baro>.*)""", re.VERBOSE)
-s1_4PPPP_re = re.compile(r"""(?P<p_slv>.*)""", re.VERBOSE)
+#s1_1sTTT_re = re.compile(r"""(?P<air_t>\d{4})""", re.VERBOSE)
+#s1_2sTTT_re = re.compile(r"""(?P<dewp>\d{4})""", re.VERBOSE)
+#s1_3PPPP_re = re.compile(r"""(?P<p_baro>.*)""", re.VERBOSE)
+#s1_4PPPP_re = re.compile(r"""(?P<p_slv>.*)""", re.VERBOSE)
 s1_5appp_re = re.compile(r"""(?P<a>\d)(?P<ppp>\d{3})""", re.VERBOSE)
 s1_6RRRt_re = re.compile(r"""(?P<RRR>\d{3})(?P<t>(\d|/))""", re.VERBOSE)
 s1_7wwWW_re = re.compile(r"""(?P<ww>\d{2})(?P<W1>\d)(?P<W2>\d)""", re.VERBOSE)
@@ -127,11 +127,16 @@ class synop(object):
                 self.decoded[sname] = pattern.match(sraw).groupdict()
                 #for gname, graw in sec_groups.items():
                 for gname, graw in self.decoded[sname].items():
-                    gpattern, ghandler = ghandlers[gname]
-                    group = gpatter.match(graw)
-                    _report_match(ghandler, group.group())
-
-                    self.decoded[sname][gname] = ghandler(self, group.groupdict())
+                    if not graw is None:
+                        gpattern, ghandler = ghandlers[gname]
+                        if gpattern is None:
+                            self.decoded[sname][gname] = ghandler(self, graw)
+                        else:
+                            group = gpattern.match(graw)
+                            _report_match(ghandler, group.group())
+                            self.decoded[sname][gname] = ghandler(self, group.groupdict())
+                    else:
+                        self.decoded[sname][gname] = None
             else:
                 self.decoded[sname] = None
         
@@ -229,7 +234,7 @@ class synop(object):
 
 
     #@static_method
-    def _handle_vis(code):
+    def _handle_vis(self, code):
         """
         Decode visibility of synop report
         
@@ -519,21 +524,21 @@ class synop(object):
 
 
     sec0_handlers = (section_0_re,
-                     {"datetime": _default_handler,
-                      "MMMM": _handle_MMMM,
-                      "monthdayr": _default_handler,
-                      "hourr": _default_handler,
-                      "wind_unit": _handle_wind_unit,
-                      "station _id": _default_handler})
+                     {"datetime": (None, _default_handler),
+                      "MMMM": (None, _handle_MMMM),
+                      "monthdayr": (None, _default_handler),
+                      "hourr": (None, _default_handler),
+                      "wind_unit": (None, _handle_wind_unit),
+                      "station_id": (None, _default_handler)})
 
     sec1_handlers = (section_1_re,
                      {"iihVV": (s1_iihVV_re, _handle_iihVV),
                       "Nddff": (s1_Nddff_re, _handle_Nddff),
                       "fff": (s1_00fff_re, _handle_00fff),
-                      "asTTT": (s1_1sTTT_re, _handle_sTTT),
-                      "bsTTT": (s1_2sTTT_re, _handle_sTTT),
-                      "aPPPP": (s1_3PPPP_re, _handle_PPPP),
-                      "bPPPP": (s1_4PPPP_re, _handle_PPPP),
+                      "air_t": (None, _handle_sTTT),
+                      "dewp": (None, _handle_sTTT),
+                      "p_baro": (None, _handle_PPPP),
+                      "p_slv": (None, _handle_PPPP),
                       "appp": (s1_5appp_re, _handle_5appp),
                       "RRRt": (s1_6RRRt_re, _handle_6RRRt),
                       "wwWW": (s1_7wwWW_re, _handle_7wwWW),
@@ -546,17 +551,17 @@ class synop(object):
     sec2_handlers = "test"
 
     sec3_handlers = (section_3_re,
-                     {"xxxx": _default_handler,
-                      "asTTT": _default_handler,
-                      "bsTTT": _default_handler,
-                      "EsTT": _default_handler,
-                      "Esss": _default_handler,
-                      "SSS": _default_handler,
-                      "SS": _default_handler,
-                      "RRRt": _default_handler,
-                      "RRRR": _default_handler,
-                      "NChh": _default_handler,
-                      "SSss": _default_handler,
+                     {"xxxx": (None, _default_handler),
+                      "asTTT": (None, _default_handler),
+                      "bsTTT": (None, _default_handler),
+                      "EsTT": (None, _default_handler),
+                      "Esss": (None, _default_handler),
+                      "SSS": (None, _default_handler),
+                      "SS": (None, _default_handler),
+                      "RRRt": (None, _default_handler),
+                      "RRRR": (None, _default_handler),
+                      "NChh": (None, _default_handler),
+                      "SSss": (None, _default_handler),
                      })
 
     #sec4_handlers = (section_4_re,
