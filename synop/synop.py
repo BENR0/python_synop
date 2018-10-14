@@ -27,13 +27,6 @@ section_0_re = re.compile(r"""(?P<datetime>[\d]{12})\s+
                          (?P<wind_unit>[\d]{1})\s+
                          (?P<station_id>[\d]{5})""", re.VERBOSE)
 
-sec0_handlers = (section_0_re,
-                 {"datetime": _default_handler ,
-                  "MMMM": _handle_MMMM,
-                  "monthdayr": _default_handler,
-                  "hourr": _default_handler,
-                  "wind_unit": _handle_wind_unit,
-                  "station _id": _default_handler})
 
 #split section 1
 #separate handling of groups because resulting dictionary can not contain double regex group names
@@ -53,6 +46,7 @@ section_1_re  = re.compile(r"""(?P<iihVV>\d{5})\s+
 
 s1_iihVV_re = re.compile(r"""(?P<ir>\d)(?P<ix>\d)(?P<h>\d)(?P<VV>\d\d))""", re.VERBOSE)
 s1_Nddff_re = re.compile(r"""(?P<N>\d)(?P<dd>\d\d)(?P<ff>\d\d)""", re.VERBOSE)
+s1_00fff_re = re.compile(r"""(?P<wind_speed>\d{3})""", re.VERBOSE)
 s1_1sTTT_re = re.compile(r"""(?P<air_t>\d{4})""", re.VERBOSE)
 s1_2sTTT_re = re.compile(r"""(?P<dewp>\d{4})""", re.VERBOSE)
 s1_3PPPP_re = re.compile(r"""(?P<p_baro>*)""", re.VERBOSE)
@@ -63,24 +57,6 @@ s1_7wwWW_re = re.compile(r"""(?P<ww>\d{2})(?P<W1>\d)(?P<W2>\d)""", re.VERBOSE)
 s1_8NCCC_re = re.compile(r"""(?P<N>\d)(?P<CL>(\d|/))(?P<CM>(\d|/))(?P<CH>(\d|/))""", re.VERBOSE)
 s1_9GGgg_re = re.compile(r"""(?P<observation_time>*)""", re.VERBOSE)
 
-sec1_handlers = (section_1_re,
-                 {"iihVV": (s1_iihVV_re, _handle_iihVV),
-                  "Nddff": (s1_Nddff_re, _handle_Nddff),
-                  "00fff": (s1_00fff_re, _handle_00fff),
-                  "1sTTT": (s1_1sTTT_re, _handle_sTTT)
-                  "2sTTT": (s1_2sTTT_re, _handle_sTTT)
-                  "3PPPP": (s1_3PPPP_re, _handle_PPPP),
-                  "4PPPP": (s1_4PPPP_re, _handle_PPPP),
-                  "5appp": (s1_5appp_re, _handle_5appp),
-                  "6RRRt": (s1_6RRRt_re, _handle_6RRRt),
-                  "7wwWW": (s1_7wwWW_re, _handle_7wwWW),
-                  "8NCCC": (s1_8NCCC_re, _handle_8NCCC),
-                  "9GGgg": (s1_9GGgg_re, _handle_9GGgg),
-                 })
-
-#sec2_handlers = (section_2_re,
-                 #{"": })
-sec2_handlers = "test"
 
 #split section 3
 #separate handling of groups
@@ -110,37 +86,6 @@ section_3_re = re.compile(r"""(0(?P<0xxxx>\d{4}\s+))?
                               re.VERBOSE)
 
 
-sec3_handlers = (section_3_re,
-                 {"0xxxx": _default_handler,
-                  "1sTTT": _default_handler,
-                  "2sTTT": _default_handler,
-                  "3EsTT": _default_handler,
-                  "4Esss": _default_handler,
-                  "55SSS": _default_handler,
-                  "553SS": _default_handler,
-                  "6RRRt": _default_handler,
-                  "7RRRR": _default_handler,
-                  "8NChh": _default_handler,
-                  "9SSss": _default_handler,
-                 })
-
-#sec4_handlers = (section_4_re,
-                 #{"": })
-
-#sec5_handlers = (section_5_re,
-                 #{"": })
-
-#sec6_handlers = (section_6_re,
-                 #{"": })
-
-#sec9_handlers = (section_9_re,
-                     #{"": })
-
-sec4_handlers = "test"
-sec5_handlers = "test"
-sec6_handlers = "test"
-sec9_handlers = "test"
-
 def _report_match(handler, match):
     """
     Report success or failure of the given handler function. (DEBUG)
@@ -155,15 +100,6 @@ class synop(object):
     """
     SYNOP report
     """
-    self.handlers = ("section_0": sec0_handlers,
-                     "section_1": sec1_handlers,
-                     "section_2": sec2_handlers,
-                     "section_3": sec3_handlers,
-                     "section_4": sec4_handlers,
-                     "section_5": sec5_handlers,
-                     "section_6": sec6_handlers,
-                     "section_9": sec9_handlers}
-
     
     def __init__(self, report):
         """
@@ -180,11 +116,11 @@ class synop(object):
         self.datetime = None
         self.station_id = None
 
-		self.decoded = sections_re.match(self.raw).groupdict()
+        self.decoded = sections_re.match(self.raw).groupdict()
 
         #split raw report into its sections then split each section into
         #its groups and handle (decode) each group
-		for sname, sraw in self.decoded.items():
+        for sname, sraw in self.decoded.items():
             if not sraw is None:
                 pattern, ghandlers = self.handlers[sname]
                 #sec_groups = patter.match(sraw).groupdict()
@@ -195,7 +131,7 @@ class synop(object):
                     group = gpatter.match(graw)
                     _report_match(ghandler, group.group())
 
-                    self.decoded[sname][gname] = ghandler(gname, group.groupdict())
+                    self.decoded[sname][gname] = ghandler(self, group.groupdict())
             else:
                 self.decoded[sname] = None
         
@@ -219,9 +155,9 @@ class synop(object):
 
 
     def _handle_MMMM(self,  code):
-		station_type_code = {"AAXX": "Landstation (FM 12)",
-							 "BBXX": "Seastation (FM 13)",
-							 "OOXX": "Mobile landstation (FM 14)"}
+        station_type_code = {"AAXX": "Landstation (FM 12)",
+                             "BBXX": "Seastation (FM 13)",
+                             "OOXX": "Mobile landstation (FM 14)"}
 
         return station_type_code[code]
 
@@ -250,22 +186,22 @@ class synop(object):
 			Temperature in degree Celsius
 			
 		"""
-		sign = int(code[0])
-		value = int(code[1:])
+        sign = int(code[0])
+        value = int(code[1:])
 		
-		if sign == 0:
-			sign = -1
-		elif sign == 1:
-			sign = 1
-		elif sign == 9:
-			return value
+        if sign == 0:
+            sign = -1
+        elif sign == 1:
+            sign = 1
+        elif sign == 9:
+            return value
+
+        value = sign * value * 0.1
 		
-		value = sign * value * 0.1
-		
-		return value
+        return value
 
 
-	def _handle_PPPP(code):
+	def _handle_PPPP(self, code):
 		"""
 		Decode pressure
 		
@@ -456,7 +392,7 @@ class synop(object):
 				  "5": "erst fallend, dann steigend -- resultierender Druck gleich oder tiefer als zuvor",
 				  "6": "erst fallend, dann gleichbleibend -- resultierender Druck tiefer als zuvor",
                   "7": "konstant fallend -- resultierender Druck tiefer als zuvor",
-                  "8": "erst steigend oder gleichbleibend, dann fallend -- resultierender Druck tiefer als zuvor")
+                  "8": "erst steigend oder gleichbleibend, dann fallend -- resultierender Druck tiefer als zuvor"}
 
         appp = {"p_tendency": a_code[d["a"]],
                  "p_diff": self._handle_PPPP(d["ppp"])}
@@ -563,6 +499,74 @@ class synop(object):
         time = d["observation_time"]
 
         return d
+
+
+    sec0_handlers = (section_0_re,
+                     {"datetime": _default_handler,
+                      "MMMM": _handle_MMMM,
+                      "monthdayr": _default_handler,
+                      "hourr": _default_handler,
+                      "wind_unit": _handle_wind_unit,
+                      "station _id": _default_handler})
+
+    sec1_handlers = (section_1_re,
+                     {"iihVV": (s1_iihVV_re, _handle_iihVV),
+                      "Nddff": (s1_Nddff_re, _handle_Nddff),
+                      "00fff": (s1_00fff_re, _handle_00fff),
+                      "1sTTT": (s1_1sTTT_re, _handle_sTTT),
+                      "2sTTT": (s1_2sTTT_re, _handle_sTTT),
+                      "3PPPP": (s1_3PPPP_re, _handle_PPPP),
+                      "4PPPP": (s1_4PPPP_re, _handle_PPPP),
+                      "5appp": (s1_5appp_re, _handle_5appp),
+                      "6RRRt": (s1_6RRRt_re, _handle_6RRRt),
+                      "7wwWW": (s1_7wwWW_re, _handle_7wwWW),
+                      "8NCCC": (s1_8NCCC_re, _handle_8NCCC),
+                      "9GGgg": (s1_9GGgg_re, _handle_9GGgg),
+                     })
+
+    #sec2_handlers = (section_2_re,
+                     #{"": })
+    sec2_handlers = "test"
+
+    sec3_handlers = (section_3_re,
+                     {"0xxxx": _default_handler,
+                      "1sTTT": _default_handler,
+                      "2sTTT": _default_handler,
+                      "3EsTT": _default_handler,
+                      "4Esss": _default_handler,
+                      "55SSS": _default_handler,
+                      "553SS": _default_handler,
+                      "6RRRt": _default_handler,
+                      "7RRRR": _default_handler,
+                      "8NChh": _default_handler,
+                      "9SSss": _default_handler,
+                     })
+
+    #sec4_handlers = (section_4_re,
+                     #{"": })
+
+    #sec5_handlers = (section_5_re,
+                     #{"": })
+
+    #sec6_handlers = (section_6_re,
+                     #{"": })
+
+    #sec9_handlers = (section_9_re,
+                         #{"": })
+
+    sec4_handlers = "test"
+    sec5_handlers = "test"
+    sec6_handlers = "test"
+    sec9_handlers = "test"
+
+    self.handlers = {"section_0": sec0_handlers,
+                     "section_1": sec1_handlers,
+                     "section_2": sec2_handlers,
+                     "section_3": sec3_handlers,
+                     "section_4": sec4_handlers,
+                     "section_5": sec5_handlers,
+                     "section_6": sec6_handlers,
+                     "section_9": sec9_handlers}
 
 
     def __str__(self):
