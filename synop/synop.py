@@ -228,7 +228,7 @@ class synop(object):
         return value
 
 
-    @static_method
+    #@static_method
     def _handle_vis(code):
         """
         Decode visibility of synop report
@@ -367,6 +367,24 @@ class synop(object):
                  "wind_speed": wind_speed}
 
         return Nddff
+
+
+    def _handle_00fff(self, d):
+        """
+        Handles 00fff group in section 1
+
+        This group is only present if wind speed is above 99 units.
+
+        fff: wind speed (10 minute mean)
+
+        Parameters
+        ----------
+        d : dict
+            re groupdict
+
+        """
+
+        return int(d["wind_speed"])
 
 
     def _handle_5appp(self, d):
