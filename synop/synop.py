@@ -272,7 +272,7 @@ class synop(object):
 		return dist
 
 
-	def _handle_iihVV(self, d):
+    def _handle_iihVV(self, d):
 		"""
 		Handles iihVV group in section 1
 
@@ -317,7 +317,6 @@ class synop(object):
                  "station_operation": station_operation_type_code[d["ix"]],
                  "cloud_height": cloud_height_0_code[d["h"]],
                  "vis": self._handle_vis(d["VV"])}
-
 
         return iihVV
 
@@ -559,7 +558,7 @@ class synop(object):
     sec6_handlers = "test"
     sec9_handlers = "test"
 
-    self.handlers = {"section_0": sec0_handlers,
+    handlers = {"section_0": sec0_handlers,
                      "section_1": sec1_handlers,
                      "section_2": sec2_handlers,
                      "section_3": sec3_handlers,
