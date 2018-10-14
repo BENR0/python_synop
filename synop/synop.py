@@ -32,16 +32,16 @@ section_0_re = re.compile(r"""(?P<datetime>[\d]{12})\s+
 #separate handling of groups because resulting dictionary can not contain double regex group names
 section_1_re  = re.compile(r"""(?P<iihVV>\d{5})\s+
                                (?P<Nddff>(\d|/)\d{3})\s+
-                               (00(?P<00fff>\d{3})\s+)?
-                               (1(?P<1sTTT>\d{4})\s+)?
-                               (2(?P<2sTTT>\d{4})\s+)?
-                               (3(?P<3PPPP>(\d\d\d\d|\d\d\d\/))\s+)?
-                               (4(?P<4PPPP>(\d\d\d\d|\d\d\d\/))\s+)?
-                               (5(?P<5appp>\d{4})\s+)?
-                               (6(?P<6RRRt>\d{4})\s+)?
-                               (7(?P<7wwW>\d{4})\s+)?
-                               (8(?P<8NCCC>(\d|/){4})\s+)?
-                               (9(?P<9GGgg>\d{4})\s+)?""",
+                               (00(?P<fff>\d{3})\s+)?
+                               (1(?P<asTTT>\d{4})\s+)?
+                               (2(?P<bsTTT>\d{4})\s+)?
+                               (3(?P<aPPPP>(\d\d\d\d|\d\d\d\/))\s+)?
+                               (4(?P<bPPPP>(\d\d\d\d|\d\d\d\/))\s+)?
+                               (5(?P<appp>\d{4})\s+)?
+                               (6(?P<RRRt>\d{4})\s+)?
+                               (7(?P<wwW>\d{4})\s+)?
+                               (8(?P<NCCC>(\d|/){4})\s+)?
+                               (9(?P<GGgg>\d{4})\s+)?""",
                                re.VERBOSE)
 
 s1_iihVV_re = re.compile(r"""(?P<ir>\d)(?P<ix>\d)(?P<h>\d)(?P<VV>\d\d))""", re.VERBOSE)
@@ -72,17 +72,17 @@ section_3_re  = re.compile(r"""(?P<tmax_12>(1(?P<sign>\d)(?P<value>\d\d\d)\s+))?
                                (?P<special_weather>(9(?P<code1>\d\d\d\d)\s+){0,6})?""",
                                re.VERBOSE)
 
-section_3_re = re.compile(r"""(0(?P<0xxxx>\d{4}\s+))?
-                              (1(?P<1sTTT>\d{4}\s+)?
-                              (2(?P<2sTTT>\d{4}\s+))?
-                              (3(?P<3EsTT>\d{4}\s+))?
-                              (4(?P<4Esss>(\d|/)\d{3}\s+))?
-                              (55(?P<55SSS>\d\d\d)\s+(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?)?
-                              (553(?P<553SS>\d\d)\s+(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?)?
-                              (6(?P<6RRRt>(\d\d\d|///)\d\s+))?
-                              (7(?P<7RRRR>\d{4}\s+))?
-                              ((8(?P<8NChh>\d(\d|/)\d\d\s+)?){0,4})?
-                              (9(?P<9SSss>\d{4}\s+)?)""",
+section_3_re = re.compile(r"""(0(?P<xxxx>\d{4}\s+))?
+                              (1(?P<asTTT>\d{4}\s+)?
+                              (2(?P<bsTTT>\d{4}\s+))?
+                              (3(?P<EsTT>\d{4}\s+))?
+                              (4(?P<Esss>(\d|/)\d{3}\s+))?
+                              (55(?P<SSS>\d\d\d)\s+(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?)?
+                              (553(?P<SS>\d\d)\s+(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?)?
+                              (6(?P<RRRt>(\d\d\d|///)\d\s+))?
+                              (7(?P<RRRR>\d{4}\s+))?
+                              ((8(?P<NChh>\d(\d|/)\d\d\s+)?){0,4})?
+                              (9(?P<SSss>\d{4}\s+)?)""",
                               re.VERBOSE)
 
 
@@ -512,16 +512,16 @@ class synop(object):
     sec1_handlers = (section_1_re,
                      {"iihVV": (s1_iihVV_re, _handle_iihVV),
                       "Nddff": (s1_Nddff_re, _handle_Nddff),
-                      "00fff": (s1_00fff_re, _handle_00fff),
-                      "1sTTT": (s1_1sTTT_re, _handle_sTTT),
-                      "2sTTT": (s1_2sTTT_re, _handle_sTTT),
-                      "3PPPP": (s1_3PPPP_re, _handle_PPPP),
-                      "4PPPP": (s1_4PPPP_re, _handle_PPPP),
-                      "5appp": (s1_5appp_re, _handle_5appp),
-                      "6RRRt": (s1_6RRRt_re, _handle_6RRRt),
-                      "7wwWW": (s1_7wwWW_re, _handle_7wwWW),
-                      "8NCCC": (s1_8NCCC_re, _handle_8NCCC),
-                      "9GGgg": (s1_9GGgg_re, _handle_9GGgg),
+                      "fff": (s1_00fff_re, _handle_00fff),
+                      "asTTT": (s1_1sTTT_re, _handle_sTTT),
+                      "bsTTT": (s1_2sTTT_re, _handle_sTTT),
+                      "aPPPP": (s1_3PPPP_re, _handle_PPPP),
+                      "bPPPP": (s1_4PPPP_re, _handle_PPPP),
+                      "appp": (s1_5appp_re, _handle_5appp),
+                      "RRRt": (s1_6RRRt_re, _handle_6RRRt),
+                      "wwWW": (s1_7wwWW_re, _handle_7wwWW),
+                      "NCCC": (s1_8NCCC_re, _handle_8NCCC),
+                      "GGgg": (s1_9GGgg_re, _handle_9GGgg),
                      })
 
     #sec2_handlers = (section_2_re,
@@ -529,17 +529,17 @@ class synop(object):
     sec2_handlers = "test"
 
     sec3_handlers = (section_3_re,
-                     {"0xxxx": _default_handler,
-                      "1sTTT": _default_handler,
-                      "2sTTT": _default_handler,
-                      "3EsTT": _default_handler,
-                      "4Esss": _default_handler,
-                      "55SSS": _default_handler,
-                      "553SS": _default_handler,
-                      "6RRRt": _default_handler,
-                      "7RRRR": _default_handler,
-                      "8NChh": _default_handler,
-                      "9SSss": _default_handler,
+                     {"xxxx": _default_handler,
+                      "asTTT": _default_handler,
+                      "bsTTT": _default_handler,
+                      "EsTT": _default_handler,
+                      "Esss": _default_handler,
+                      "SSS": _default_handler,
+                      "SS": _default_handler,
+                      "RRRt": _default_handler,
+                      "RRRR": _default_handler,
+                      "NChh": _default_handler,
+                      "SSss": _default_handler,
                      })
 
     #sec4_handlers = (section_4_re,
