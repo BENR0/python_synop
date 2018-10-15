@@ -101,28 +101,28 @@ section_3_re = re.compile(r"""(0(?P<xxxx>\d{4}\s+))?
 
 s3_EsTT_re = re.compile(r"""(?P<E>\d)(?P<sTT>\d{3})""", re.VERBOSE)
 s3_Esss_re = re.compile(r"""(?P<E>\d)(?P<sss>\d{3})""", re.VERBOSE)
-s3_55SSS_re = re.compile(r"""(55(?P<hours>\d\d\d)\s+
-                             (0(?P<net_pos>\d\d\d\d)\s+)?
-                             (1(?P<net_neg>\d\d\d\d)\s+)?
-                             (2(?P<global>\d\d\d\d)\s+)?
-                             (3(?P<diff>\d\d\d\d)\s+)?
-                             (4(?P<long_down>\d\d\d\d)\s+)?
-                             (5(?P<long_up>\d\d\d\d)\s+)?
-                             (6(?P<short>\d\d\d\d)\s+)?)?""",
+s3_55SSS_re = re.compile(r"""(55(?P<rad_d_hours>\d\d\d)\s+
+                             (0(?P<rad_d_net_pos>\d\d\d\d)\s+)?
+                             (1(?P<rad_d_net_neg>\d\d\d\d)\s+)?
+                             (2(?P<rad_d_global>\d\d\d\d)\s+)?
+                             (3(?P<rad_d_diff>\d\d\d\d)\s+)?
+                             (4(?P<rad_d_long_down>\d\d\d\d)\s+)?
+                             (5(?P<rad_d_long_up>\d\d\d\d)\s+)?
+                             (6(?P<rad_d_short>\d\d\d\d)\s+)?)?""",
                              re.VERBOSE)
-s3_553SS_re = re.compile(r"""(553(?P<hours>\d\d)\s+
-                             (0(?P<net_pos>\d\d\d\d)\s+)?
-                             (1(?P<net_neg>\d\d\d\d)\s+)?
-                             (2(?P<global>\d\d\d\d)\s+)?
-                             (3(?P<diff>\d\d\d\d)\s+)?
-                             (4(?P<long_down>\d\d\d\d)\s+)?
-                             (5(?P<long_up>\d\d\d\d)\s+)?
-                             (6(?P<short>\d\d\d\d)\s+)?)?""",
+s3_553SS_re = re.compile(r"""(553(?P<rad_h_hours>\d\d)\s+
+                             (0(?P<rad_h_net_pos>\d\d\d\d)\s+)?
+                             (1(?P<rad_h_net_neg>\d\d\d\d)\s+)?
+                             (2(?P<rad_h_global>\d\d\d\d)\s+)?
+                             (3(?P<rad_h_diff>\d\d\d\d)\s+)?
+                             (4(?P<rad_h_long_down>\d\d\d\d)\s+)?
+                             (5(?P<rad_h_long_up>\d\d\d\d)\s+)?
+                             (6(?P<rad_h_short>\d\d\d\d)\s+)?)?""",
                              re.VERBOSE)
-s3_8NChh_re = re.compile(r"""(8(?P<layer_1>\d(\d|/)\d\d)\s+)?
-                             (8(?P<layer_2>\d(\d|/)\d\d)\s+)?
-                             (8(?P<layer_3>\d(\d|/)\d\d)\s+)?
-                             (8(?P<layer_4>\d(\d|/)\d\d)\s+)?""",
+s3_8NChh_re = re.compile(r"""(8(?P<c1>\d(\d|/)\d\d)\s+)?
+                             (8(?P<c2>\d(\d|/)\d\d)\s+)?
+                             (8(?P<c3>\d(\d|/)\d\d)\s+)?
+                             (8(?P<c4>\d(\d|/)\d\d)\s+)?""",
                              re.VERBOSE)
 
 
@@ -427,7 +427,7 @@ class synop(object):
         #by the 00fff group
         wind_speed = int(d["ff"])
 
-        Nddff = {"cloud_cover": cloud_cover,
+        Nddff = {"cloud_cover_tot": cloud_cover,
                  "wind_dir": wind_dir,
                  "wind_speed": wind_speed}
 
@@ -671,7 +671,7 @@ class synop(object):
 
         Information about cloud types
 
-        N: amount of low clouds if not present amount of medium high clouds
+        N: cover of low clouds if not present amount of medium high clouds
         C: type of low clouds (CL)
         C: type of medium clouds (CM)
         C: type of high clouds (CH)
@@ -722,7 +722,7 @@ class synop(object):
                             "/": "hohe Wolken nicht erkennbar wegen Nebel, Dunkel- oder Verborgenheit"
                             }
 
-        NCCC = {"cloud_amount": d["N"],
+        NCCC = {"cloud_cover_lowest": d["N"],
                 "cloud_type_low": low_clouds_code[d["CL"]],
                 "cloud_type_medium": medium_clouds_code[d["CM"]],
                 "cloud_type_high": high_clouds_code[d["CH"]],
@@ -842,7 +842,7 @@ class synop(object):
 
         """
         d = {k: int(v) for k,v in d.items() if not v is None}
-        d["hours"] = d["hours"] / 10.0
+        d["rad_d_hours"] = d["rad_d_hours"] / 10.0
 
         return d
     
@@ -871,7 +871,7 @@ class synop(object):
 
         """
         d = {k: int(v) for k,v in d.items() if not v is None}
-        d["hours"] = d["hours"] / 10.0
+        d["rad_h_hours"] = d["rad_h_hours"] / 10.0
 
         return d
     
@@ -1005,15 +1005,22 @@ class synop(object):
                 layer = layer_re.match(v).groupdict()
                 cover = layer["cover"]
                 if cover != "/":
-                    layer["cover"] = int(layer["cover"])
+                    d[l + "_cover"] = int(layer["cover"])
+                    #layer["cover"] = int(layer["cover"])
                 else:
-                    layer["cover"] = "NA"
+                    d[l + "_cover"] = "NA"
+                    #layer["cover"] = "NA"
 
-                layer["type"] = cloud_type_code[layer["type"]]
+                d[l + "_type"] = cloud_type_code[layer["type"]]
+                #layer["type"] = cloud_type_code[layer["type"]]
                 h, t = cheight(layer["height"])
-                layer["height"] = h
-                layer["measurement"] = t
-                d[l] = layer
+                d[l + "_height"] = h
+                d[l + "_measurement"] = t
+                #layer["height"] = h
+                #layer["measurement"] = t
+                #d[l] = layer
+                #drop item with l key
+                del d[l]
             else:
                 d[l] = None
 
@@ -1150,10 +1157,25 @@ class synop(object):
 
         Returns
         -------
-        pd.DataFrame
+        dict
 
         """
-        group_prefixes = {""}
+        vardict = {}
+
+        rep = self.decoded
+        secs = ["section_0", "section_1", "section_3"]
+        for s in secs:
+            for name, v in rep[s].items():
+                if type(v) == dict:
+                    for sname, sv in v.items():
+                        if not sv is None and type(sv) == int:
+                            vardict[sname] = sv
+                        else:
+                            vardict[sname] = "NA"
+                elif v is None:
+                    vardict[name] = "NA"
+                else:
+                    vardict[name] = v
 
 
-        return
+        return vardict
