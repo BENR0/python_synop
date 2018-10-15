@@ -59,7 +59,7 @@ s1_9GGgg_re = re.compile(r"""(?P<observation_time>.*)""", re.VERBOSE)
 
 
 #split section 2
-section_1_re  = re.compile(r"""(222(?P<dv>\d{2}))\s+
+section_2_re  = re.compile(r"""(222(?P<dv>\d{2}))\s+
                                (0(?P<water_t>(\d|/){4})\s+)?
                                (1(?P<aPPHH>\d{4})\s+)?
                                (2(?P<bPPHH>\d{4})\s+)?
