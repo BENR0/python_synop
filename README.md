@@ -24,6 +24,7 @@ Todo
     - e.g. cloud height in 8NChh is <30m and fog events
 - handling of classes for contious variables (e.g. cloud height 0-49m etc.)
     - add additional information if value is a class or contious (se)
+- put cloud cover in groups 8NCCC and Nddff in separate method
 - translate code classes to english with wmo code tables
 - add exceptions from the wmo manual of codes for group "rules" to methods
 - check conversion of wind direction angles (also add conversion of angles to words for printing)
