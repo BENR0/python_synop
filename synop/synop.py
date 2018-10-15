@@ -917,14 +917,15 @@ class synop(object):
         return precip
     
 
-    def _handle_9GGgg(self, d):
+    def _handle_8NChh(self, d):
         """
-        Handles 9GGgg group in section 1
+        Handles 8NChh group in section 3
 
-        Observation time (UTC)
+        Report of cloud layers. May be repeated up to 4 times.
 
-        GG: hours
-        gg: minutes
+        N: cloud cover in 1/8
+        C: cloud type
+        hh: height of cloud base in m
 
         Parameters
         ----------
@@ -932,6 +933,44 @@ class synop(object):
             re groupdict
 
         """
+		cloud_type_code = {"0": "Cirrus (Ci)",
+						   "1": "Cirrocumulus (Cc)",
+						   "2": "Cirrostratus (Cs)",
+						   "3": "Altocumulus (Ac)",
+						   "4": "Altostratus (As)",
+						   "5": "Nimbostratus (Ns)",
+						   "6": "Stratocumulus (Sc)",
+						   "7": "Stratus (St)",
+						   "8": "Cumulus (Cu)",
+						   "9": "Cumulonimbus (Cb)",
+						   "/": "Wolkengattung nicht erkennbar"
+                           }
+
+        def cheight(code):
+            """
+            Decode cloud height
+
+            Parameters
+            ----------
+            code : str
+
+            Returns
+            -------
+            int
+                Cloud height in m
+            """
+
+            return
+
+        layer_re = re.compile(r"""(8(?P<cover>\d)(?P<type>(\d|/))(?P<height>\d\d))""", re.VERBOSE)
+
+        for l, v  in d.items():
+            if not v is None:
+                layer = layer_re.match(v).groupdict()
+                layer["cover"] = int(layer["cover"]) / 8.0
+                layer["type"] = cloud_type_code[layer["type"]]
+                layer["height"] = cheight(layer["height"])
+            d[l] = layer
 
         return d
     
@@ -957,47 +996,6 @@ class synop(object):
         return d
     
 
-    def _handle_9GGgg(self, d):
-        """
-        Handles 9GGgg group in section 1
-
-        Observation time (UTC)
-
-        GG: hours
-        gg: minutes
-
-
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-
-        return d
-    
-
-    def _handle_9GGgg(self, d):
-        """
-        Handles 9GGgg group in section 1
-
-        Observation time (UTC)
-
-        GG: hours
-        gg: minutes
-
-
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-
-        return d
-    
 
     sec0_handlers = (section_0_re,
                      {"datetime": (None, _default_handler),
@@ -1044,7 +1042,7 @@ class synop(object):
                       "SS": (s3_553SS_re, _handle_553SS),
                       "RRRt": (s1_6RRRt_re, _handle_6RRRt),
                       "RRRR": (None, _handle_7RRRR),
-                      "NChh": (s3_8NChh_re, _default_handler),
+                      "NChh": (s3_8NChh_re, _handle_8NChh),
                       "SSss": (None, _default_handler),
                      })
 
