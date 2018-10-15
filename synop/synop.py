@@ -707,7 +707,7 @@ class synop(object):
     #############################
     def _handle_3EsTT(self, d):
         """
-        Handles 3EsTT group in section 1
+        Handles 3EsTT group in section 3
 
         12 respectively 15 hour minimum temperature 5cm above ground/snow cover
 
@@ -738,7 +738,7 @@ class synop(object):
 
     def _handle_4Esss(self, d):
         """
-        Handles 4Esss group in section 1
+        Handles 4Esss group in section 3
 
         Snow height
         Only reported at 00, 06, 12, 18 UTC.
@@ -771,14 +771,21 @@ class synop(object):
         return d
     
 
-    def _handle_9GGgg(self, d):
+    def _handle_55SSS(self, d):
         """
-        Handles 9GGgg group in section 1
+        Handles 55SSS group and the groups following it in section 3
 
-        Observation time (UTC)
+        55SSS: Sunshine duration of the previous day in 1/10 hours (only reported at 06 UTC)
+        0FFFF: positive net radiation in J/m^⁻2
+        1FFFF: negative net radiation in J/m^⁻2
+        2FFFF: sum of global radiation in J/m^⁻2
+        3FFFF: sum of diffuse sky radiation in J/m^⁻2
+        4FFFF: sum of downward long-wave radiation radiation in J/m^⁻2
+        5FFFF: sum of upward long-wave radiation radiation in J/m^⁻2
+        6FFFF: sum of short-wave radiation radiation in J/m^⁻2
 
-        GG: hours
-        gg: minutes
+        SSS: hours
+        FFF: radiation in J/m^-2
 
         Parameters
         ----------
@@ -790,11 +797,39 @@ class synop(object):
         return d
     
 
-    def _handle_9GGgg(self, d):
+    def _handle_553SS(self, d):
         """
-        Handles 9GGgg group in section 1
+        Handles 553SS group and the groups following it in section 3
 
-        Observation time (UTC)
+        553SS: Sunshine duration of the the last full or half (only for half hour measurements)
+               hour in 1/10 hours (only reported at 06 UTC)
+        0FFFF: positive net radiation in kJ/m^⁻2
+        1FFFF: negative net radiation in kJ/m^⁻2
+        2FFFF: sum of global radiation in kJ/m^⁻2
+        3FFFF: sum of diffuse sky radiation in kJ/m^⁻2
+        4FFFF: sum of downward long-wave radiation radiation in kJ/m^⁻2
+        5FFFF: sum of upward long-wave radiation radiation in kJ/m^⁻2
+        6FFFF: sum of short-wave radiation radiation in kJ/m^⁻2
+
+        SSS: hours
+        FFF: radiation in kJ/m^-2
+
+        Parameters
+        ----------
+        d : dict
+            re groupdict
+
+        """
+
+        return d
+    
+
+    def _handle_6RRRt(self, d):
+        """
+        Handles 6RRRt group in section 3
+
+        Melted precipitation.
+        Three hourly precipitation height at at main and
 
         GG: hours
         gg: minutes
