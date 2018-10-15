@@ -1000,8 +1000,13 @@ class synop(object):
 
         layer_re = re.compile(r"""((?P<cover>\d)(?P<type>(\d|/))(?P<height>\d\d))""", re.VERBOSE)
 
+        #count cloud layers
+        c_nlayers = 0
+
+
         for l, v  in d.items():
             if not v is None:
+                c_nlayers += 1
                 layer = layer_re.match(v).groupdict()
                 cover = layer["cover"]
                 if cover != "/":
@@ -1023,6 +1028,8 @@ class synop(object):
                 del d[l]
             else:
                 d[l] = None
+
+            d["c_nlayers"] = c_nlayers
 
         return d
     
