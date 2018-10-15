@@ -90,17 +90,17 @@ section_3_re = re.compile(r"""(0(?P<xxxx>\d{4}\s+))?
                               (2(?P<bsTTT>\d{4}\s+))?
                               (3(?P<EsTT>\d{4}\s+))?
                               (4(?P<Esss>(\d|/)\d{3}\s+))?
-                              ((55(?P<SSS>\d\d\d)\s+)(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?)?
-                              ((553(?P<SS>\d\d)\s+)(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?)?
+                              (?P<SSS>(55\d\d\d\s+)(0\d{4}\s+)?(1\d{4}\s+)?(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?(6\d{4}\s+)?(6\d{4}\s+)?)?
+                              (?P<SS>(553\d\d\s+)(0\d{4}\s+)?(1\d{4}\s+)?(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?(6\d{4}\s+)?(6\d{4}\s+)?)?
                               (6(?P<RRRt>(\d\d\d|///)\d\s+))?
                               (7(?P<RRRR>\d{4}\s+))?
-                              ((8(?P<NChh>\d(\d|/)\d\d\s+)?){0,4})?
-                              (9(?P<SSss>\d{4}\s+))?""",
+                              (?P<NChh>(8\d(\d|/)\d\d\s+){0,4})?
+                              (9(?P<SSss>\d{4}\s+){0,9})?""",
                               re.VERBOSE)
 
 s3_EsTT_re = re.compile(r"""(?P<E>\d)(?P<sTT>\d{3})""", re.VERBOSE)
 s3_Esss_re = re.compile(r"""(?P<E>\d)(?P<sss>\d{3})""", re.VERBOSE)
-s3_55SSS_re = re.compile(r"""((?P<duration>\d\d\d)\s+
+s3_55SSS_re = re.compile(r"""(55(?P<duration>\d\d\d)\s+
                          (0(?P<net_pos>\d\d\d\d)\s+)?
                          (1(?P<net_neg>\d\d\d\d)\s+)?
                          (2(?P<global>\d\d\d\d)\s+)?
@@ -109,7 +109,7 @@ s3_55SSS_re = re.compile(r"""((?P<duration>\d\d\d)\s+
                          (5(?P<long_up>\d\d\d\d)\s+)?
                          (6(?P<short>\d\d\d\d)\s+)?)?""",
                          re.VERBOSE)
-s3_553SS_re = re.compile(r"""((?P<duration>\d\d\d)\s+
+s3_553SS_re = re.compile(r"""(553(?P<duration>\d\d)\s+
                          (0(?P<net_pos>\d\d\d\d)\s+)?
                          (1(?P<net_neg>\d\d\d\d)\s+)?
                          (2(?P<global>\d\d\d\d)\s+)?
