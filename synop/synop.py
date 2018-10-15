@@ -98,6 +98,36 @@ section_3_re = re.compile(r"""(0(?P<xxxx>\d{4}\s+))?
                               (9(?P<SSss>\d{4}\s+))?""",
                               re.VERBOSE)
 
+s3_EsTT_re = re.compile(r"""(?P<E>\d)(?P<sTT>\d{3})""", re.VERBOSE)
+s3_Esss_re = re.compile(r"""(?P<E>\d)(?P<sss>\d{3})""", re.VERBOSE)
+s3_55SSS_re = re.compile(r"""((?P<duration>\d\d\d)\s+
+                         (0(?P<net_pos>\d\d\d\d)\s+)?
+                         (1(?P<net_neg>\d\d\d\d)\s+)?
+                         (2(?P<global>\d\d\d\d)\s+)?
+                         (3(?P<diff>\d\d\d\d)\s+)?
+                         (4(?P<long_down>\d\d\d\d)\s+)?
+                         (5(?P<long_up>\d\d\d\d)\s+)?
+                         (6(?P<short>\d\d\d\d)\s+)?)?""",
+                         re.VERBOSE)
+s3_553SS_re = re.compile(r"""((?P<duration>\d\d\d)\s+
+                         (0(?P<net_pos>\d\d\d\d)\s+)?
+                         (1(?P<net_neg>\d\d\d\d)\s+)?
+                         (2(?P<global>\d\d\d\d)\s+)?
+                         (3(?P<diff>\d\d\d\d)\s+)?
+                         (4(?P<long_down>\d\d\d\d)\s+)?
+                         (5(?P<long_up>\d\d\d\d)\s+)?
+                         (6(?P<short>\d\d\d\d)\s+)?)?""",
+                         re.VERBOSE)
+
+
+section_4_re = re.compile(r"""(?P<any>.*\s+)?""", re.VERBOSE)
+
+section_5_re = section_4_re
+
+section_6_re = section_4_re
+
+section_9_re = section_4_re
+
 
 def _report_match(handler, match):
     """
@@ -1012,51 +1042,19 @@ class synop(object):
                      })
 
     sec4_handlers = (section_4_re,
-                     {"asTTT": (None, _handle_sTTT),
-                      "aPPHH": (None, _default_handler),
-                      "bPPHH": (None, _default_handler),
-                      "dddd": (None, _default_handler),
-                      "cPPHH": (None, _default_handler),
-                      "dPPHH": (None, _default_handler),
-                      "IEER": (None, _default_handler),
-                      "HHH": (None, _default_handler),
-                      "bsTTT": (None, _handle_sTTT),
+                     {"any": (None, _default_handler),
                      })
 
     sec5_handlers = (section_5_re,
-                     {"asTTT": (None, _handle_sTTT),
-                      "aPPHH": (None, _default_handler),
-                      "bPPHH": (None, _default_handler),
-                      "dddd": (None, _default_handler),
-                      "cPPHH": (None, _default_handler),
-                      "dPPHH": (None, _default_handler),
-                      "IEER": (None, _default_handler),
-                      "HHH": (None, _default_handler),
-                      "bsTTT": (None, _handle_sTTT),
+                     {"any": (None, _default_handler),
                      })
 
     sec6_handlers = (section_6_re,
-                     {"asTTT": (None, _handle_sTTT),
-                      "aPPHH": (None, _default_handler),
-                      "bPPHH": (None, _default_handler),
-                      "dddd": (None, _default_handler),
-                      "cPPHH": (None, _default_handler),
-                      "dPPHH": (None, _default_handler),
-                      "IEER": (None, _default_handler),
-                      "HHH": (None, _default_handler),
-                      "bsTTT": (None, _handle_sTTT),
+                     {"any": (None, _default_handler),
                      })
 
     sec9_handlers = (section_9_re,
-                     {"asTTT": (None, _handle_sTTT),
-                      "aPPHH": (None, _default_handler),
-                      "bPPHH": (None, _default_handler),
-                      "dddd": (None, _default_handler),
-                      "cPPHH": (None, _default_handler),
-                      "dPPHH": (None, _default_handler),
-                      "IEER": (None, _default_handler),
-                      "HHH": (None, _default_handler),
-                      "bsTTT": (None, _handle_sTTT),
+                     {"any": (None, _default_handler),
                      })
 
     handlers = {"section_0": sec0_handlers,
