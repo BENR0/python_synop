@@ -4,6 +4,7 @@
 import re
 import datetime
 import logging
+import pandas as pd
 
 _logger = logging.getLogger(__name__)
 
@@ -86,14 +87,14 @@ section_2_re  = re.compile(r"""(222(?P<dv>\d{2}))\s+
                                #re.VERBOSE)
 
 section_3_re = re.compile(r"""(0(?P<xxxx>\d{4}\s+))?
-                              (1(?P<asTTT>\d{4}\s+))?
-                              (2(?P<bsTTT>\d{4}\s+))?
+                              (1(?P<t_max>\d{4}\s+))?
+                              (2(?P<t_min>\d{4}\s+))?
                               (3(?P<EsTT>\d{4}\s+))?
                               (4(?P<Esss>(\d|/)\d{3}\s+))?
                               (?P<SSS>(55\d\d\d\s+)(0\d{4}\s+)?(1\d{4}\s+)?(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?(6\d{4}\s+)?(6\d{4}\s+)?)?
                               (?P<SS>(553\d\d\s+)(0\d{4}\s+)?(1\d{4}\s+)?(2\d{4}\s+)?(3\d{4}\s+)?(4\d{4}\s+)?(6\d{4}\s+)?(6\d{4}\s+)?)?
                               (6(?P<RRRt>(\d\d\d|///)\d\s+))?
-                              (7(?P<RRRR>\d{4}\s+))?
+                              (7(?P<precip>\d{4}\s+))?
                               (?P<NChh>(8\d(\d|/)\d\d\s+){0,4})?
                               (9(?P<SSss>\d{4}\s+){0,9})?""",
                               re.VERBOSE)
@@ -386,7 +387,7 @@ class synop(object):
         """
         Handles Nddff group in section 1
 
-        N: total cloud cover in 1/8
+        N: total cloud cover in okta
         dd: wind direction in dekadegree (10 minute mean)
         ff: wind speed (10 minute mean)
 
@@ -400,11 +401,11 @@ class synop(object):
         if cloud_cover == "/":
             #not observed
             cloud_cover = "NA"
-        elif cloud_cover == "9":
-            #sky not observable/visible
-            cloud_cover = -99
+        #elif cloud_cover == "9":
+            ##sky not observable/visible
+            #cloud_cover = -99
         else:
-            cloud_cover = int(cloud_cover) / 8.0
+            cloud_cover = int(cloud_cover)
 
 
         wind_dir = int(d["dd"])
@@ -415,8 +416,11 @@ class synop(object):
             #circular wind
             wind_dir = -99
         else:
-            #is this conversion correct????
-            wind_dir = (360.0/98) * wind_dir
+            #01: 5-14
+            #02: 15-24
+            #03: 25-34
+            #decoding the class to single value in the middle of the class
+            wind_dir = (10 * wind_dir) - 1
 
 
         #wind speed is greater than 99 units and this group is directly followed
@@ -927,7 +931,10 @@ class synop(object):
 
         Report of cloud layers. May be repeated up to 4 times.
 
-        N: cloud cover in 1/8
+        N: cloud cover in okta.
+           If 9 obscured by fog or other meteorological phenomena.
+           If / observation not made or not possible due to phenomena other
+           than 9
         C: cloud type
         hh: height of cloud base in m
 
@@ -996,7 +1003,12 @@ class synop(object):
         for l, v  in d.items():
             if not v is None:
                 layer = layer_re.match(v).groupdict()
-                layer["cover"] = int(layer["cover"]) / 8.0
+                cover = layer["cover"]
+                if cover != "/":
+                    layer["cover"] = int(layer["cover"])
+                else:
+                    layer["cover"] = "NA"
+
                 layer["type"] = cloud_type_code[layer["type"]]
                 h, t = cheight(layer["height"])
                 layer["height"] = h
@@ -1067,14 +1079,14 @@ class synop(object):
 
     sec3_handlers = (section_3_re,
                      {"xxxx": (None, _default_handler),
-                      "asTTT": (None, _handle_sTTT),
-                      "bsTTT": (None, _handle_sTTT),
+                      "t_max": (None, _handle_sTTT),
+                      "t_min": (None, _handle_sTTT),
                       "EsTT": (s3_EsTT_re, _handle_3EsTT),
                       "Esss": (s3_Esss_re, _handle_4Esss),
                       "SSS": (s3_55SSS_re, _handle_55SSS),
                       "SS": (s3_553SS_re, _handle_553SS),
                       "RRRt": (s1_6RRRt_re, _handle_6RRRt),
-                      "RRRR": (None, _handle_7RRRR),
+                      "precip": (None, _handle_7RRRR),
                       "NChh": (s3_8NChh_re, _handle_8NChh),
                       "SSss": (None, _default_handler),
                      })
@@ -1129,5 +1141,19 @@ class synop(object):
             return
 
         prettydict(self.decoded)
+
+        return
+
+    def toDF(self):
+        """
+        Convert selected variables of report to a pandas dataframe
+
+        Returns
+        -------
+        pd.DataFrame
+
+        """
+        group_prefixes = {""}
+
 
         return
