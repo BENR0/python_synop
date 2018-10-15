@@ -589,7 +589,7 @@ class synop(object):
                                  "96": "leichtes oder mäßiges Gewitter mit Graupel oder Hagel",
                                  "97": "starkes Gewitter mit Regen oder Schnee",
                                  "98": "starkes Gewitter mit Sandsturm",
-                                 "99": "starkes Gewitter mit Graupel oder Hagel",
+                                 "99": "starkes Gewitter mit Graupel oder Hagel"
                                  }
 
         weather_course_code = {"0": "Wolkendecke stets weniger als oder genau die Hälfte bedeckend (0-4/8)",
@@ -627,8 +627,52 @@ class synop(object):
             re groupdict
 
         """
+        low_clouds_code = {"0": "keine tiefen Wolken",
+                           "1": "Cumulus humilis oder fractus (keine vertikale Entwicklung)",
+                           "2": "Cumulus mediocris oder congestus (mäßige vertikale Entwicklung)",
+                           "3": "Cumulonimbus calvus (keine Umrisse und kein Amboß)",
+                           "4": "Stratocumulus cumulogenitus (entstanden durch Ausbreitung von Cumulus)",
+                           "5": "Stratocumulus",
+                           "6": "Stratus nebulosus oder fractus (durchgehende Wolkenfläche)",
+                           "7": "Stratus fractus oder Cumulus fractus (Fetzenwolken bei Schlechtwetter)",
+                           "8": "Cumulus und Stratocumulus (in verschiedenen Höhen)",
+                           "9": "Cumulonimbus capillatus (mit Amboß)",
+                           "/": "tiefe Wolken nicht erkennbar wegen Nebel, Dunkel- oder Verborgenheit"
+                          }
 
-        return d
+        medium_clouds_code = {"0": "keine mittelhohen Wolken",
+                              "1": "Altostratus translucidus (meist durchsichtig)",
+                              "2": "Altostratus opacus oder Nimbostratus",
+                              "3": "Altocumulus translucidus (meist durchsichtig)",
+                              "4": "Bänke von Altocumulus (unregelmäßig, lentikular)",
+                              "5": "Bänder von Altocumulus (den Himmel fortschreitend überziehend)",
+                              "6": "Altocumulus cumulogenitus (entstanden durch Ausbreitung von Cumulus)",
+                              "7": "Altocumulus (mehrschichtig oder zusammen mit Altostratus/Nimbostratus)",
+                              "8": "Altocumulus castellanus oder floccus (cumuliforme Büschel aufweisend)",
+                              "9": "Altocumulus eines chaotisch aussehenden Himmels",
+                              "/": "mittelhohe Wolken nicht erkennbar wegen Nebel, Dunkel- oder Verborgenheit"
+                             }
+
+        high_clouds_code = {"0": "keine hohen Wolken",
+                            "1": "Cirrus fibratus oder uncinus (büschelartig)",
+                            "2": "Cirrus spissatus, castellanus oder floccus (dicht, in Schwaden)",
+                            "3": "Cirrus spissatus cumulogenitus (aus einem Amboß entstanden)",
+                            "4": "Cirrus uncinus oder fibratus (den Himmel zunehmend oder fortschreitend überziehend)",
+                            "5": "Bänder von zunehmendem Cirrus oder Cirrostratus (nicht höher als 45 Grad über dem Horizont)",
+                            "6": "Bänder von zunehmendem Cirrus oder Cirrostratus (mehr als 45 Grad über dem Horizont, den Himmel nicht ganz bedeckend)",
+                            "7": "Cirrostratus (den Himmel stets ganz bedeckend)",
+                            "8": "Cirrostratus (den Himmel nicht ganz bedeckend, aber auch nicht zunehmend)",
+                            "9": "Cirrocumulus",
+                            "/": "hohe Wolken nicht erkennbar wegen Nebel, Dunkel- oder Verborgenheit"
+                            }
+
+        NCCC = {"cloud_amount": d["N"],
+                "cloud_type_low": low_clouds_code[d["CL"]],
+                "cloud_type_medium": medium_clouds_code[d["CM"]],
+                "cloud_type_high": high_clouds_code[d["CH"]],
+               }
+
+        return NCCC
 
 
     def _handle_9GGgg(self, d):
