@@ -112,6 +112,12 @@ def _report_match(handler, match):
 class synop(object):
     """
     SYNOP report
+
+    References
+    ----------
+    [1] World Meteorological Organization (WMO). 2011. Manual on Codes - International Codes,
+        Volume I.1, Annex II to the WMO Technical Regulations: Part A- Alphanumeric Codes.
+        2011 edition updated in 2017. WMO.
     """
     
     def __init__(self, report):
@@ -598,6 +604,7 @@ class synop(object):
                                  "99": "starkes Gewitter mit Graupel oder Hagel"
                                  }
 
+        #see [1] A-353
         weather_course_code = {"0": "Wolkendecke stets weniger als oder genau die Hälfte bedeckend (0-4/8)",
                                "1": "Wolkendecke zeitweise weniger oder genau, zeitweise mehr als die Hälfte bedeckend (</> 4/8)",
                                "2": "Wolkendecke stets mehr als die Hälfte bedeckend (5-8/8)",
@@ -829,7 +836,9 @@ class synop(object):
         Handles 6RRRt group in section 3
 
         Melted precipitation.
-        Three hourly precipitation height at at main and
+        Three hourly precipitation height.
+
+        NOTE: Only present if regulation 12.2.5.2 applies (see ref [1] A-24)
 
         GG: hours
         gg: minutes
@@ -844,14 +853,14 @@ class synop(object):
         return d
     
 
-    def _handle_9GGgg(self, d):
+    def _handle_7RRRR(self, d):
         """
-        Handles 9GGgg group in section 1
+        Handles 7RRRR group in section 3
 
-        Observation time (UTC)
+        Reports total precipitation amount during the 24 hour period
+        ending at the time of observation in 1/10 of millimetre.
 
-        GG: hours
-        gg: minutes
+        RRRR: precip in 1/10 mm (9999 for trace)
 
         Parameters
         ----------
@@ -859,8 +868,16 @@ class synop(object):
             re groupdict
 
         """
+        d = int(d)
 
-        return d
+        if d >= 9998:
+            precip = 999
+        elif d == 9999:
+            precip = "NA"
+        else:
+            precip = d
+
+        return precip
     
 
     def _handle_9GGgg(self, d):
@@ -984,32 +1001,63 @@ class synop(object):
                      {"xxxx": (None, _default_handler),
                       "asTTT": (None, _handle_sTTT),
                       "bsTTT": (None, _handle_sTTT),
-                      "EsTT": (None, _default_handler),
-                      "Esss": (None, _default_handler),
-                      "SSS": (None, _default_handler),
-                      "SS": (None, _default_handler),
-                      "RRRt": (None, _default_handler),
-                      "RRRR": (None, _default_handler),
+                      "EsTT": (s3_EsTT_re, _handle_3EsTT),
+                      "Esss": (s3_Esss_re, _handle_4Esss),
+                      "SSS": (s3_55SSS_re, _handle_55SSS),
+                      "SS": (s3_553SS_re, _handle_553SS),
+                      "RRRt": (s1_6RRRt_re, _handle_6RRRt),
+                      "RRRR": (None, _handle_7RRRR),
                       "NChh": (None, _default_handler),
                       "SSss": (None, _default_handler),
                      })
 
-    #sec4_handlers = (section_4_re,
-                     #{"": })
+    sec4_handlers = (section_4_re,
+                     {"asTTT": (None, _handle_sTTT),
+                      "aPPHH": (None, _default_handler),
+                      "bPPHH": (None, _default_handler),
+                      "dddd": (None, _default_handler),
+                      "cPPHH": (None, _default_handler),
+                      "dPPHH": (None, _default_handler),
+                      "IEER": (None, _default_handler),
+                      "HHH": (None, _default_handler),
+                      "bsTTT": (None, _handle_sTTT),
+                     })
 
-    #sec5_handlers = (section_5_re,
-                     #{"": })
+    sec5_handlers = (section_5_re,
+                     {"asTTT": (None, _handle_sTTT),
+                      "aPPHH": (None, _default_handler),
+                      "bPPHH": (None, _default_handler),
+                      "dddd": (None, _default_handler),
+                      "cPPHH": (None, _default_handler),
+                      "dPPHH": (None, _default_handler),
+                      "IEER": (None, _default_handler),
+                      "HHH": (None, _default_handler),
+                      "bsTTT": (None, _handle_sTTT),
+                     })
 
-    #sec6_handlers = (section_6_re,
-                     #{"": })
+    sec6_handlers = (section_6_re,
+                     {"asTTT": (None, _handle_sTTT),
+                      "aPPHH": (None, _default_handler),
+                      "bPPHH": (None, _default_handler),
+                      "dddd": (None, _default_handler),
+                      "cPPHH": (None, _default_handler),
+                      "dPPHH": (None, _default_handler),
+                      "IEER": (None, _default_handler),
+                      "HHH": (None, _default_handler),
+                      "bsTTT": (None, _handle_sTTT),
+                     })
 
-    #sec9_handlers = (section_9_re,
-                         #{"": })
-
-    sec4_handlers = "test"
-    sec5_handlers = "test"
-    sec6_handlers = "test"
-    sec9_handlers = "test"
+    sec9_handlers = (section_9_re,
+                     {"asTTT": (None, _handle_sTTT),
+                      "aPPHH": (None, _default_handler),
+                      "bPPHH": (None, _default_handler),
+                      "dddd": (None, _default_handler),
+                      "cPPHH": (None, _default_handler),
+                      "dPPHH": (None, _default_handler),
+                      "IEER": (None, _default_handler),
+                      "HHH": (None, _default_handler),
+                      "bsTTT": (None, _handle_sTTT),
+                     })
 
     handlers = {"section_0": sec0_handlers,
                      "section_1": sec1_handlers,
