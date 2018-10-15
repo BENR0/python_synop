@@ -101,23 +101,30 @@ section_3_re = re.compile(r"""(0(?P<xxxx>\d{4}\s+))?
 s3_EsTT_re = re.compile(r"""(?P<E>\d)(?P<sTT>\d{3})""", re.VERBOSE)
 s3_Esss_re = re.compile(r"""(?P<E>\d)(?P<sss>\d{3})""", re.VERBOSE)
 s3_55SSS_re = re.compile(r"""(55(?P<duration>\d\d\d)\s+
-                         (0(?P<net_pos>\d\d\d\d)\s+)?
-                         (1(?P<net_neg>\d\d\d\d)\s+)?
-                         (2(?P<global>\d\d\d\d)\s+)?
-                         (3(?P<diff>\d\d\d\d)\s+)?
-                         (4(?P<long_down>\d\d\d\d)\s+)?
-                         (5(?P<long_up>\d\d\d\d)\s+)?
-                         (6(?P<short>\d\d\d\d)\s+)?)?""",
-                         re.VERBOSE)
+                             (0(?P<net_pos>\d\d\d\d)\s+)?
+                             (1(?P<net_neg>\d\d\d\d)\s+)?
+                             (2(?P<global>\d\d\d\d)\s+)?
+                             (3(?P<diff>\d\d\d\d)\s+)?
+                             (4(?P<long_down>\d\d\d\d)\s+)?
+                             (5(?P<long_up>\d\d\d\d)\s+)?
+                             (6(?P<short>\d\d\d\d)\s+)?)?""",
+                             re.VERBOSE)
 s3_553SS_re = re.compile(r"""(553(?P<duration>\d\d)\s+
-                         (0(?P<net_pos>\d\d\d\d)\s+)?
-                         (1(?P<net_neg>\d\d\d\d)\s+)?
-                         (2(?P<global>\d\d\d\d)\s+)?
-                         (3(?P<diff>\d\d\d\d)\s+)?
-                         (4(?P<long_down>\d\d\d\d)\s+)?
-                         (5(?P<long_up>\d\d\d\d)\s+)?
-                         (6(?P<short>\d\d\d\d)\s+)?)?""",
-                         re.VERBOSE)
+                             (0(?P<net_pos>\d\d\d\d)\s+)?
+                             (1(?P<net_neg>\d\d\d\d)\s+)?
+                             (2(?P<global>\d\d\d\d)\s+)?
+                             (3(?P<diff>\d\d\d\d)\s+)?
+                             (4(?P<long_down>\d\d\d\d)\s+)?
+                             (5(?P<long_up>\d\d\d\d)\s+)?
+                             (6(?P<short>\d\d\d\d)\s+)?)?""",
+                             re.VERBOSE)
+s3_8NChh_re = re.compile(r"""(8(?P<layer_1>\d(\d|/)\d\d)\s+)?
+                             (8(?P<layer_2>\d(\d|/)\d\d)\s+)?
+                             (8(?P<layer_3>\d(\d|/)\d\d)\s+)?
+                             (8(?P<layer_4>\d(\d|/)\d\d)\s+)?""",
+                             re.VERBOSE)
+
+
 
 
 section_4_re = re.compile(r"""(?P<any>.*\s+)?""", re.VERBOSE)
@@ -1037,7 +1044,7 @@ class synop(object):
                       "SS": (s3_553SS_re, _handle_553SS),
                       "RRRt": (s1_6RRRt_re, _handle_6RRRt),
                       "RRRR": (None, _handle_7RRRR),
-                      "NChh": (None, _default_handler),
+                      "NChh": (s3_8NChh_re, _default_handler),
                       "SSss": (None, _default_handler),
                      })
 
