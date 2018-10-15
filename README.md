@@ -18,6 +18,16 @@ pip install -e .
 Usage
 -----
 
+Todo
+----
+- plausibility checks between groups
+    - e.g. cloud height in 8NChh is <30m and fog events
+- handling of classes for contious variables (e.g. cloud height 0-49m etc.)
+    - add additional information if value is a class or contious (se)
+- translate code classes to english with wmo code tables
+- add exceptions from the wmo manual of codes for group "rules" to methods
+- check conversion of wind direction angles (also add conversion of angles to words for printing)
+- add decoding of special weather conditions in 9SSss group of section 3
 
 License
 -------

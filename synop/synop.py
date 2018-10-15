@@ -100,7 +100,7 @@ section_3_re = re.compile(r"""(0(?P<xxxx>\d{4}\s+))?
 
 s3_EsTT_re = re.compile(r"""(?P<E>\d)(?P<sTT>\d{3})""", re.VERBOSE)
 s3_Esss_re = re.compile(r"""(?P<E>\d)(?P<sss>\d{3})""", re.VERBOSE)
-s3_55SSS_re = re.compile(r"""(55(?P<duration>\d\d\d)\s+
+s3_55SSS_re = re.compile(r"""(55(?P<hours>\d\d\d)\s+
                              (0(?P<net_pos>\d\d\d\d)\s+)?
                              (1(?P<net_neg>\d\d\d\d)\s+)?
                              (2(?P<global>\d\d\d\d)\s+)?
@@ -109,7 +109,7 @@ s3_55SSS_re = re.compile(r"""(55(?P<duration>\d\d\d)\s+
                              (5(?P<long_up>\d\d\d\d)\s+)?
                              (6(?P<short>\d\d\d\d)\s+)?)?""",
                              re.VERBOSE)
-s3_553SS_re = re.compile(r"""(553(?P<duration>\d\d)\s+
+s3_553SS_re = re.compile(r"""(553(?P<hours>\d\d)\s+
                              (0(?P<net_pos>\d\d\d\d)\s+)?
                              (1(?P<net_neg>\d\d\d\d)\s+)?
                              (2(?P<global>\d\d\d\d)\s+)?
@@ -837,6 +837,8 @@ class synop(object):
             re groupdict
 
         """
+        d = {k: int(v) for k,v in d.items() if not v is None}
+        d["hours"] = d["hours"] / 10.0
 
         return d
     
@@ -864,6 +866,8 @@ class synop(object):
             re groupdict
 
         """
+        d = {k: int(v) for k,v in d.items() if not v is None}
+        d["hours"] = d["hours"] / 10.0
 
         return d
     
