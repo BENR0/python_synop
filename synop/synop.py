@@ -692,8 +692,6 @@ class synop(object):
         GG: hours
         gg: minutes
 
-
-
         Parameters
         ----------
         d : dict
@@ -713,10 +711,74 @@ class synop(object):
 
         12 respectively 15 hour minimum temperature 5cm above ground/snow cover
 
+        E: condition of the ground, the snow respectively
+        sTT: temperature with s being the sign
+             only reported at 06, 09, and 18 UTC. /// at 00 and 12 UTC
+
+        Parameters
+        ----------
+        d : dict
+            re groupdict
+
+        """
+        ground_condition_code = {"0": "trocken",
+                                 "1": "feucht",
+                                 "2": "naß",
+                                 "3": "überflutet",
+                                 "4": "gefroren",
+                                 "5": "Glatteis oder Eisglätte (mindestens 50 % des Erdbodens bedeckend)",
+                                 "6": "loser, trockener Sand": "den Boden nicht vollständig bedeckend",
+                                 "7": "geschlossene dünne Sandschicht": "den Boden vollständig bedeckend",
+                                 "8": "geschlossene dicke Sandschicht": "den Boden vollständig bedeckend",
+                                 "9": "extrem trockener Boden mit Rissen"
+                                }
+
+        return d
+    
+
+    def _handle_4Esss(self, d):
+        """
+        Handles 4Esss group in section 1
+
+        Snow height
+        Only reported at 00, 06, 12, 18 UTC.
+
+        E: condition of the ground with snow/ice
+        sss: snow height in cm
+
+        Parameters
+        ----------
+        d : dict
+            re groupdict
+
+        """
+        ground_condition_code = {"0": "vorwiegend (> 50 %) mit Eis bedeckt (Hagel-/Graupel-/Grieseldecke)",
+                                 "1": "kompakter oder nasser Schnee": "weniger als die Hälfte des Bodens bedeckend (Fl)",
+                                 "2": "kompakter oder nasser Schnee": "mehr als die Hälfte, aber den Boden nicht vollständig bedeckend (dbr)",
+                                 "3": "ebene Schicht kompakten oder nassen Schnees": "den gesamten Boden bedeckend",
+                                 "4": "unebene Schicht kompakten oder nassen Schnees": "den gesamten Boden bedeckend",
+                                 "5": "loser, trockener Schnee": "weniger als die Hälfte des Bodens bedeckend (Fl)",
+                                 "6": "loser, trockener Schnee": "mehr als die Hälfte, aber den Boden nicht vollständig bedeckend (dbr)",
+                                 "7": "ebene Schicht losen, trockenen Schnees": "den gesamten Boden bedeckend",
+                                 "8": "unebene Schicht losen, trockenen Schnees": "den gesamten Boden bedeckend",
+                                 "9": "vollständig geschlossene Schneedecke mit hohen Verwehungen (> 50 cm)",
+                                 "/": "Reste (< 10 %) von Schnee oder Eis (Hagel/Graupel/Griesel)"
+                                }
+
+        Esss = {"ground_cond": ground_condition_code[d["E"]],
+                "snow_height": int(d["sss"])}
+
+        return d
+    
+
+    def _handle_9GGgg(self, d):
+        """
+        Handles 9GGgg group in section 1
+
+        Observation time (UTC)
+
         GG: hours
         gg: minutes
-
-
 
         Parameters
         ----------
@@ -737,8 +799,6 @@ class synop(object):
         GG: hours
         gg: minutes
 
-
-
         Parameters
         ----------
         d : dict
@@ -758,8 +818,6 @@ class synop(object):
         GG: hours
         gg: minutes
 
-
-
         Parameters
         ----------
         d : dict
@@ -778,50 +836,6 @@ class synop(object):
 
         GG: hours
         gg: minutes
-
-
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-
-        return d
-    
-
-    def _handle_9GGgg(self, d):
-        """
-        Handles 9GGgg group in section 1
-
-        Observation time (UTC)
-
-        GG: hours
-        gg: minutes
-
-
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-
-        return d
-    
-
-    def _handle_9GGgg(self, d):
-        """
-        Handles 9GGgg group in section 1
-
-        Observation time (UTC)
-
-        GG: hours
-        gg: minutes
-
-
 
         Parameters
         ----------
