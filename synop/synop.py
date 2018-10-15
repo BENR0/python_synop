@@ -933,7 +933,7 @@ class synop(object):
             re groupdict
 
         """
-		cloud_type_code = {"0": "Cirrus (Ci)",
+        cloud_type_code = {"0": "Cirrus (Ci)",
 						   "1": "Cirrocumulus (Cc)",
 						   "2": "Cirrostratus (Cs)",
 						   "3": "Altocumulus (Ac)",
@@ -987,7 +987,7 @@ class synop(object):
             return h, type
 
 
-        layer_re = re.compile(r"""(8(?P<cover>\d)(?P<type>(\d|/))(?P<height>\d\d))""", re.VERBOSE)
+        layer_re = re.compile(r"""((?P<cover>\d)(?P<type>(\d|/))(?P<height>\d\d))""", re.VERBOSE)
 
         for l, v  in d.items():
             if not v is None:
@@ -997,7 +997,9 @@ class synop(object):
                 h, t = cheight(layer["height"])
                 layer["height"] = h
                 layer["measurement"] = t
-            d[l] = layer
+                d[l] = layer
+            else:
+                d[l] = None
 
         return d
     
