@@ -34,7 +34,7 @@ section_0_re = re.compile(r"""(?P<datetime>[\d]{12})\s+
 section_1_re  = re.compile(r"""(?P<iihVV>\d{5})\s+
                                (?P<Nddff>(\d|/)\d{4})\s+
                                (00(?P<fff>\d{3})\s+)?
-                               (1(?P<air_t>(\d|/){4})\s+)?
+                               (1(?P<t_air>(\d|/){4})\s+)?
                                (2(?P<dewp>(\d|/){4})\s+)?
                                (3(?P<p_baro>(\d\d\d\d|\d\d\d\/))\s+)?
                                (4(?P<p_slv>(\d\d\d\d|\d\d\d\/))\s+)?
@@ -61,7 +61,7 @@ s1_9GGgg_re = re.compile(r"""(?P<observation_time>.*)""", re.VERBOSE)
 
 #split section 2
 section_2_re  = re.compile(r"""(222(?P<dv>\d{2}))\s+
-                               (0(?P<water_t>(\d|/){4})\s+)?
+                               (0(?P<t_water>(\d|/){4})\s+)?
                                (1(?P<aPPHH>\d{4})\s+)?
                                (2(?P<bPPHH>\d{4})\s+)?
                                ((3(?P<dddd>\d\d\d\d)\s+){0,2})?
@@ -1061,7 +1061,7 @@ class synop(object):
                      {"iihVV": (s1_iihVV_re, _handle_iihVV),
                       "Nddff": (s1_Nddff_re, _handle_Nddff),
                       "fff": (s1_00fff_re, _handle_00fff),
-                      "air_t": (None, _handle_sTTT),
+                      "t_air": (None, _handle_sTTT),
                       "dewp": (None, _handle_sTTT),
                       "p_baro": (None, _handle_PPPP),
                       "p_slv": (None, _handle_PPPP),
@@ -1073,7 +1073,7 @@ class synop(object):
                      })
 
     sec2_handlers = (section_2_re,
-                     {"asTTT": (None, _handle_sTTT),
+                     {"t_water": (None, _handle_sTTT),
                       "aPPHH": (None, _default_handler),
                       "bPPHH": (None, _default_handler),
                       "dddd": (None, _default_handler),

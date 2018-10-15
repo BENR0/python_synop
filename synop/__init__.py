@@ -3,4 +3,4 @@
 
 __author__ = "Benjamin Roesner"
 
-__version__ = "0.0b"
+__version__ = "0.1b"
