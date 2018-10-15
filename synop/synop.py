@@ -764,9 +764,9 @@ class synop(object):
                                  "3": "überflutet",
                                  "4": "gefroren",
                                  "5": "Glatteis oder Eisglätte (mindestens 50 % des Erdbodens bedeckend)",
-                                 "6": "loser, trockener Sand": "den Boden nicht vollständig bedeckend",
-                                 "7": "geschlossene dünne Sandschicht": "den Boden vollständig bedeckend",
-                                 "8": "geschlossene dicke Sandschicht": "den Boden vollständig bedeckend",
+                                 "6": "loser, trockener Sand, den Boden nicht vollständig bedeckend",
+                                 "7": "geschlossene dünne Sandschicht, den Boden vollständig bedeckend",
+                                 "8": "geschlossene dicke Sandschicht, den Boden vollständig bedeckend",
                                  "9": "extrem trockener Boden mit Rissen"
                                 }
 
@@ -790,14 +790,14 @@ class synop(object):
 
         """
         ground_condition_code = {"0": "vorwiegend (> 50 %) mit Eis bedeckt (Hagel-/Graupel-/Grieseldecke)",
-                                 "1": "kompakter oder nasser Schnee": "weniger als die Hälfte des Bodens bedeckend (Fl)",
-                                 "2": "kompakter oder nasser Schnee": "mehr als die Hälfte, aber den Boden nicht vollständig bedeckend (dbr)",
-                                 "3": "ebene Schicht kompakten oder nassen Schnees": "den gesamten Boden bedeckend",
-                                 "4": "unebene Schicht kompakten oder nassen Schnees": "den gesamten Boden bedeckend",
-                                 "5": "loser, trockener Schnee": "weniger als die Hälfte des Bodens bedeckend (Fl)",
-                                 "6": "loser, trockener Schnee": "mehr als die Hälfte, aber den Boden nicht vollständig bedeckend (dbr)",
-                                 "7": "ebene Schicht losen, trockenen Schnees": "den gesamten Boden bedeckend",
-                                 "8": "unebene Schicht losen, trockenen Schnees": "den gesamten Boden bedeckend",
+                                 "1": "kompakter oder nasser Schnee, weniger als die Hälfte des Bodens bedeckend (Fl)",
+                                 "2": "kompakter oder nasser Schnee, mehr als die Hälfte, aber den Boden nicht vollständig bedeckend (dbr)",
+                                 "3": "ebene Schicht kompakten oder nassen Schnees, den gesamten Boden bedeckend",
+                                 "4": "unebene Schicht kompakten oder nassen Schneess, den gesamten Boden bedeckend",
+                                 "5": "loser, trockener Schnee, weniger als die Hälfte des Bodens bedeckend (Fl)",
+                                 "6": "loser, trockener Schnee, mehr als die Hälfte, aber den Boden nicht vollständig bedeckend (dbr)",
+                                 "7": "ebene Schicht losen, trockenen Schnees, den gesamten Boden bedeckend",
+                                 "8": "unebene Schicht losen, trockenen Schnees, den gesamten Boden bedeckend",
                                  "9": "vollständig geschlossene Schneedecke mit hohen Verwehungen (> 50 cm)",
                                  "/": "Reste (< 10 %) von Schnee oder Eis (Hagel/Graupel/Griesel)"
                                 }
