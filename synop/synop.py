@@ -33,19 +33,19 @@ section_0_re = re.compile(r"""(?P<datetime>[\d]{12})\s+
 section_1_re  = re.compile(r"""(?P<iihVV>\d{5})\s+
                                (?P<Nddff>(\d|/)\d{4})\s+
                                (00(?P<fff>\d{3})\s+)?
-                               (1(?P<air_t>\d{4})\s+)?
-                               (2(?P<dewp>\d{4})\s+)?
+                               (1(?P<air_t>(\d|/){4})\s+)?
+                               (2(?P<dewp>(\d|/){4})\s+)?
                                (3(?P<p_baro>(\d\d\d\d|\d\d\d\/))\s+)?
                                (4(?P<p_slv>(\d\d\d\d|\d\d\d\/))\s+)?
                                (5(?P<appp>\d{4})\s+)?
-                               (6(?P<RRRt>\d{4})\s+)?
-                               (7(?P<wwWW>\d{4})\s+)?
+                               (6(?P<RRRt>(\d|/){3}\d\s+))?
+                               (7(?P<wwWW>\d{2}(\d|/)(\d|/))\s+)?
                                (8(?P<NCCC>(\d|/){4})\s+)?
                                (9(?P<GGgg>\d{4})\s+)?""",
                                re.VERBOSE)
 
 s1_iihVV_re = re.compile(r"""(?P<ir>\d)(?P<ix>\d)(?P<h>\d)(?P<VV>\d\d)""", re.VERBOSE)
-s1_Nddff_re = re.compile(r"""(?P<N>\d)(?P<dd>\d\d)(?P<ff>\d\d)""", re.VERBOSE)
+s1_Nddff_re = re.compile(r"""(?P<N>(\d|/))(?P<dd>\d\d)(?P<ff>\d\d)""", re.VERBOSE)
 s1_00fff_re = re.compile(r"""(?P<wind_speed>\d{3})""", re.VERBOSE)
 #s1_1sTTT_re = re.compile(r"""(?P<air_t>\d{4})""", re.VERBOSE)
 #s1_2sTTT_re = re.compile(r"""(?P<dewp>\d{4})""", re.VERBOSE)
@@ -268,7 +268,7 @@ class synop(object):
         if code <= 50:
             dist = 0.1 * code
         elif code > 50 and code <= 80:
-            dist = 6 + (code - 56)
+            dist = 6 + (code - 56) * 1
         elif code > 80 and code <= 89:
             dist = 35 + (code - 81) * 5
         else:
@@ -348,7 +348,7 @@ class synop(object):
             #sky not observable/visible
             cloud_cover = -99
         else:
-            cloud_cover = int(cloud_cover) / 8
+            cloud_cover = int(cloud_cover) / 8.0
 
 
         wind_dir = int(d["dd"])
@@ -360,7 +360,7 @@ class synop(object):
             wind_dir = -99
         else:
             #is this conversion correct????
-            wind_dir = (360/98) * wind_dir
+            wind_dir = (360.0/98) * wind_dir
 
 
         #wind speed is greater than 99 units and this group is directly followed
