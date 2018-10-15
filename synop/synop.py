@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 #split report into its sections
 sections_re = re.compile(r"""(?P<section_0>[\d]{12}\s+(AAXX|BBXX|OOXX)\s+[\d]{5}\s+[\d]{5})\s+
                              (?P<section_1>(\d{5}\s+){0,9})
-                             ((222\s+)(?P<section_2>(\d{5}\s+){0,9})){0,1}
+                             ((?P<section_2>(222\d\d\s+)(\d{5}\s+){0,9})){0,1}
                              ((333\s+)(?P<section_3>(\d{5}\s+){0,9})){0,1}
                              ((444\s+)(?P<section_4>(\d{5}\s+){0,9})){0,1}
                              ((555\s+)(?P<section_5>(\d{5}\s+){0,9})){0,1}
@@ -58,19 +58,32 @@ s1_8NCCC_re = re.compile(r"""(?P<N>\d)(?P<CL>(\d|/))(?P<CM>(\d|/))(?P<CH>(\d|/))
 s1_9GGgg_re = re.compile(r"""(?P<observation_time>.*)""", re.VERBOSE)
 
 
+#split section 2
+section_1_re  = re.compile(r"""(222(?P<dv>\d{2}))\s+
+                               (0(?P<water_t>(\d|/){4})\s+)?
+                               (1(?P<aPPHH>\d{4})\s+)?
+                               (2(?P<bPPHH>\d{4})\s+)?
+                               ((3(?P<dddd>\d\d\d\d)\s+){0,2})?
+                               (4(?P<cPPHH>\d{4})\s+)?
+                               (5(?P<dPPHH>\d{4})\s+)?
+                               (6(?P<IEER>\d{4})\s+)?
+                               (70(?P<HHH>\d{3})\s+)?
+                               (8(?P<bsTTT>\d{4})\s+)?""",
+                               re.VERBOSE)
+
 #split section 3
 #separate handling of groups
-section_3_re  = re.compile(r"""(?P<tmax_12>(1(?P<sign>\d)(?P<value>\d\d\d)\s+))?
-                               (?P<tmin_12>(2(?P<sign1>\d)(?P<value1>\d\d\d)\s+))?
-                               (?P<tmin_12_boden>(3(?P<ground_state>\d)(?P<sign2>\d)(?P<value2>\d\d)\s+))?
-                               (?P<snow_cover>(4(?P<ground_state1>\d)(?P<value3>\d\d\d)\s+))?
-                               (?P<sun_prev_day>(55(?P<duration>\d\d\d)\s+(2(?P<rad_sum>\d\d\d\d)\s+)?(3(?P<rad_diff>\d\d\d\d)\s+)?(4(?P<rad_ir>\d\d\d\d)\s+)?))?
-                               (?P<sun_prev_hour>(553(?P<duration1>\d\d)\s+(2(?P<rad_sum1>\d\d\d\d)\s+)?(3(?P<rad_diff1>\d\d\d\d)\s+)?(4(?P<rad_ir1>\d\d\d\d)\s+)?))?
-                               (?P<precip>(6(?P<value4>(\d\d\d|///))(?P<ref_time>\d)\s+))?
-                               (7(?P<precip_24>\d\d\d\d)\s+)?
-                               (?P<clouds>(8(?P<code>\d\d\d\d)\s+){0,4})?
-                               (?P<special_weather>(9(?P<code1>\d\d\d\d)\s+){0,6})?""",
-                               re.VERBOSE)
+#section_3_re  = re.compile(r"""(?P<tmax_12>(1(?P<sign>\d)(?P<value>\d\d\d)\s+))?
+                               #(?P<tmin_12>(2(?P<sign1>\d)(?P<value1>\d\d\d)\s+))?
+                               #(?P<tmin_12_boden>(3(?P<ground_state>\d)(?P<sign2>\d)(?P<value2>\d\d)\s+))?
+                               #(?P<snow_cover>(4(?P<ground_state1>\d)(?P<value3>\d\d\d)\s+))?
+                               #(?P<sun_prev_day>(55(?P<duration>\d\d\d)\s+(2(?P<rad_sum>\d\d\d\d)\s+)?(3(?P<rad_diff>\d\d\d\d)\s+)?(4(?P<rad_ir>\d\d\d\d)\s+)?))?
+                               #(?P<sun_prev_hour>(553(?P<duration1>\d\d)\s+(2(?P<rad_sum1>\d\d\d\d)\s+)?(3(?P<rad_diff1>\d\d\d\d)\s+)?(4(?P<rad_ir1>\d\d\d\d)\s+)?))?
+                               #(?P<precip>(6(?P<value4>(\d\d\d|///))(?P<ref_time>\d)\s+))?
+                               #(7(?P<precip_24>\d\d\d\d)\s+)?
+                               #(?P<clouds>(8(?P<code>\d\d\d\d)\s+){0,4})?
+                               #(?P<special_weather>(9(?P<code1>\d\d\d\d)\s+){0,6})?""",
+                               #re.VERBOSE)
 
 section_3_re = re.compile(r"""(0(?P<xxxx>\d{4}\s+))?
                               (1(?P<asTTT>\d{4}\s+))?
@@ -546,14 +559,22 @@ class synop(object):
                       "GGgg": (s1_9GGgg_re, _handle_9GGgg),
                      })
 
-    #sec2_handlers = (section_2_re,
-                     #{"": })
-    sec2_handlers = "test"
+    sec2_handlers = (section_2_re,
+                     {"asTTT": (None, _handle_sTTT),
+                      "aPPHH": (None, _default_handler),
+                      "bPPHH": (None, _default_handler),
+                      "dddd": (None, _default_handler),
+                      "cPPHH": (None, _default_handler),
+                      "dPPHH": (None, _default_handler),
+                      "IEER": (None, _default_handler),
+                      "HHH": (None, _default_handler),
+                      "bsTTT": (None, _handle_sTTT),
+                     })
 
     sec3_handlers = (section_3_re,
                      {"xxxx": (None, _default_handler),
-                      "asTTT": (None, _default_handler),
-                      "bsTTT": (None, _default_handler),
+                      "asTTT": (None, _handle_sTTT),
+                      "bsTTT": (None, _handle_sTTT),
                       "EsTT": (None, _default_handler),
                       "Esss": (None, _default_handler),
                       "SSS": (None, _default_handler),
