@@ -409,6 +409,8 @@ class synop(object):
         """
         Handles 5appp group in section 1
 
+        3 hourly tendency of station air pressure
+
         a: type of pressure tendency
         ppp: absolute pressure change over last three hours in 1/10 Hectopascal
 
@@ -438,6 +440,8 @@ class synop(object):
     def _handle_6RRRt(self, d):
         """
         Handles 6RRRt group in section 1
+
+        Amount of melted precipitation
 
         RRR: precipitation amount in mm
         t: reference time
@@ -478,6 +482,8 @@ class synop(object):
     def _handle_7wwWW(self, d):
         """
         Handles 7wwWW group in section 1
+
+        Current weather and weather course
         
         ww: current weather
         W: weather course (W1)
@@ -615,6 +621,8 @@ class synop(object):
         """
         Handles 8NCCC group in section 1
 
+        Information about cloud types
+
         N: amount of low clouds if not present amount of medium high clouds
         C: type of low clouds (CL)
         C: type of medium clouds (CM)
@@ -696,6 +704,197 @@ class synop(object):
 
         return d
 
+    #############################
+    #Handling of section 3 groups
+    #############################
+    def _handle_3EsTT(self, d):
+        """
+        Handles 3EsTT group in section 1
+
+        12 respectively 15 hour minimum temperature 5cm above ground/snow cover
+
+        GG: hours
+        gg: minutes
+
+
+
+        Parameters
+        ----------
+        d : dict
+            re groupdict
+
+        """
+
+        return d
+    
+
+    def _handle_9GGgg(self, d):
+        """
+        Handles 9GGgg group in section 1
+
+        Observation time (UTC)
+
+        GG: hours
+        gg: minutes
+
+
+
+        Parameters
+        ----------
+        d : dict
+            re groupdict
+
+        """
+
+        return d
+    
+
+    def _handle_9GGgg(self, d):
+        """
+        Handles 9GGgg group in section 1
+
+        Observation time (UTC)
+
+        GG: hours
+        gg: minutes
+
+
+
+        Parameters
+        ----------
+        d : dict
+            re groupdict
+
+        """
+
+        return d
+    
+
+    def _handle_9GGgg(self, d):
+        """
+        Handles 9GGgg group in section 1
+
+        Observation time (UTC)
+
+        GG: hours
+        gg: minutes
+
+
+
+        Parameters
+        ----------
+        d : dict
+            re groupdict
+
+        """
+
+        return d
+    
+
+    def _handle_9GGgg(self, d):
+        """
+        Handles 9GGgg group in section 1
+
+        Observation time (UTC)
+
+        GG: hours
+        gg: minutes
+
+
+
+        Parameters
+        ----------
+        d : dict
+            re groupdict
+
+        """
+
+        return d
+    
+
+    def _handle_9GGgg(self, d):
+        """
+        Handles 9GGgg group in section 1
+
+        Observation time (UTC)
+
+        GG: hours
+        gg: minutes
+
+
+
+        Parameters
+        ----------
+        d : dict
+            re groupdict
+
+        """
+
+        return d
+    
+
+    def _handle_9GGgg(self, d):
+        """
+        Handles 9GGgg group in section 1
+
+        Observation time (UTC)
+
+        GG: hours
+        gg: minutes
+
+
+
+        Parameters
+        ----------
+        d : dict
+            re groupdict
+
+        """
+
+        return d
+    
+
+    def _handle_9GGgg(self, d):
+        """
+        Handles 9GGgg group in section 1
+
+        Observation time (UTC)
+
+        GG: hours
+        gg: minutes
+
+
+
+        Parameters
+        ----------
+        d : dict
+            re groupdict
+
+        """
+
+        return d
+    
+
+    def _handle_9GGgg(self, d):
+        """
+        Handles 9GGgg group in section 1
+
+        Observation time (UTC)
+
+        GG: hours
+        gg: minutes
+
+
+
+        Parameters
+        ----------
+        d : dict
+            re groupdict
+
+        """
+
+        return d
+    
 
     sec0_handlers = (section_0_re,
                      {"datetime": (None, _default_handler),
