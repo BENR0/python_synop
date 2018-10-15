@@ -946,6 +946,17 @@ class synop(object):
 						   "/": "Wolkengattung nicht erkennbar"
                            }
 
+        cloud_height_classes = {90: 49,
+                                91: 99,
+                                92: 199,
+                                93: 299,
+                                94: 599,
+                                95: 999,
+                                96: 1499,
+                                97: 1999,
+                                98: 2499,
+                                99: 2500}
+
         def cheight(code):
             """
             Decode cloud height
@@ -959,8 +970,22 @@ class synop(object):
             int
                 Cloud height in m
             """
+            code = int(code)
 
-            return
+            type = "continous"
+
+            if code <= 50:
+                h = code * 30
+            elif code >= 56 and code <= 80:
+                h = 1800 + (code - 56) * 300
+            elif code >= 81 and code <= 89:
+                h = 10500 + (code - 81) * 1500
+            elif code >= 90:
+                type = "classes"
+                h = cloud_height_classes[code] 
+
+            return h, type
+
 
         layer_re = re.compile(r"""(8(?P<cover>\d)(?P<type>(\d|/))(?P<height>\d\d))""", re.VERBOSE)
 
@@ -969,7 +994,9 @@ class synop(object):
                 layer = layer_re.match(v).groupdict()
                 layer["cover"] = int(layer["cover"]) / 8.0
                 layer["type"] = cloud_type_code[layer["type"]]
-                layer["height"] = cheight(layer["height"])
+                h, t = cheight(layer["height"])
+                layer["height"] = h
+                layer["measurement"] = t
             d[l] = layer
 
         return d
