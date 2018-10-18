@@ -5,4 +5,5 @@ treport = "201809051400 AAXX 05141 10224 42680 50704 10230 20139 30174 40180 580
 
 def test_class():
     report = synop(treport)
+    print(report.toDF())
     print(report)
