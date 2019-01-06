@@ -180,8 +180,8 @@ class synop(object):
         for sname, sraw in self.decoded.items():
             if not sraw is None:
                 pattern, ghandlers = self.handlers[sname]
-                print(sname)
-                print(pattern)
+                #TODO
+                #- add try except for matching and collect string when  match is empty
                 #sec_groups = patter.match(sraw).groupdict()
                 self.decoded[sname] = pattern.match(sraw).groupdict()
                 #for gname, graw in sec_groups.items():
