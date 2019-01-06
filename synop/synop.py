@@ -547,7 +547,7 @@ class synop(object):
             re groupdict
 
         """
-        currrent_weather_code = {"00": "Bewölkungsentwicklung nicht beobachtet",
+        current_weather_code = {"00": "Bewölkungsentwicklung nicht beobachtet",
                                  "01": "Bewölkung abnehmend",
                                  "02": "Bewölkung unverändert",
                                  "03": "Bewölkung zunehmend",
