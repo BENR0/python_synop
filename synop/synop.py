@@ -31,7 +31,7 @@ section_0_re = re.compile(r"""(?P<datetime>[\d]{12})\s+
 
 #split section 1
 #separate handling of groups because resulting dictionary can not contain double regex group names
-section_1_re  = re.compile(r"""(?P<iihVV>\d{5})\s+
+section_1_re  = re.compile(r"""(?P<iihVV>(\d|\/){5})\s+
                                (?P<Nddff>(\d|/)\d{4})\s+
                                (00(?P<fff>\d{3})\s+)?
                                (1(?P<t_air>(\d|/){4})\s+)?
@@ -45,7 +45,7 @@ section_1_re  = re.compile(r"""(?P<iihVV>\d{5})\s+
                                (9(?P<GGgg>\d{4})\s+)?""",
                                re.VERBOSE)
 
-s1_iihVV_re = re.compile(r"""(?P<ir>\d)(?P<ix>\d)(?P<h>\d)(?P<VV>\d\d)""", re.VERBOSE)
+s1_iihVV_re = re.compile(r"""(?P<ir>\d)(?P<ix>\d)(?P<h>(\d|\/))(?P<VV>\d\d)""", re.VERBOSE)
 s1_Nddff_re = re.compile(r"""(?P<N>(\d|/))(?P<dd>\d\d)(?P<ff>\d\d)""", re.VERBOSE)
 s1_00fff_re = re.compile(r"""(?P<wind_speed>\d{3})""", re.VERBOSE)
 #s1_1sTTT_re = re.compile(r"""(?P<air_t>\d{4})""", re.VERBOSE)
@@ -182,6 +182,8 @@ class synop(object):
                 pattern, ghandlers = self.handlers[sname]
                 #TODO
                 #- add try except for matching and collect string when  match is empty
+                print(sname)
+                print(pattern)
                 #sec_groups = patter.match(sraw).groupdict()
                 self.decoded[sname] = pattern.match(sraw).groupdict()
                 #for gname, graw in sec_groups.items():
