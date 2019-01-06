@@ -5,6 +5,7 @@ import re
 import datetime
 import logging
 import pandas as pd
+import numpy as np
 
 _logger = logging.getLogger(__name__)
 
@@ -182,8 +183,6 @@ class synop(object):
                 pattern, ghandlers = self.handlers[sname]
                 #TODO
                 #- add try except for matching and collect string when  match is empty
-                print(sname)
-                print(pattern)
                 #sec_groups = patter.match(sraw).groupdict()
                 self.decoded[sname] = pattern.match(sraw).groupdict()
                 #for gname, graw in sec_groups.items():
@@ -1162,7 +1161,7 @@ class synop(object):
 
         return
 
-    def toDF(self):
+    def to_dict(self):
         """
         Convert selected variables of report to a pandas dataframe
 
@@ -1182,9 +1181,9 @@ class synop(object):
                         if not sv is None and type(sv) == int:
                             vardict[sname] = sv
                         else:
-                            vardict[sname] = "NA"
+                            vardict[sname] = np.nan
                 elif v is None:
-                    vardict[name] = "NA"
+                    vardict[name] = np.nan
                 else:
                     vardict[name] = v
 
