@@ -46,22 +46,22 @@ section_1_re  = re.compile(r"""(?P<iihVV>(\d|\/){5})\s+
                                (9(?P<GGgg>\d{4})\s+)?""",
                                re.VERBOSE)
 
-s1_iihVV_re = re.compile(r"""(?P<ir>\d)(?P<ix>\d)(?P<h>(\d|\/))(?P<VV>\d\d)""", re.VERBOSE)
-s1_Nddff_re = re.compile(r"""(?P<N>(\d|/))(?P<dd>\d\d)(?P<ff>\d\d)""", re.VERBOSE)
-s1_00fff_re = re.compile(r"""(?P<wind_speed>\d{3})""", re.VERBOSE)
+s1_iihVV_re = re.compile(r"""((?P<ir>\d)(?P<ix>\d)(?P<h>(\d|\/))(?P<VV>\d\d))?""", re.VERBOSE)
+s1_Nddff_re = re.compile(r"""((?P<N>(\d|/))(?P<dd>\d\d)(?P<ff>\d\d))?""", re.VERBOSE)
+s1_00fff_re = re.compile(r"""((?P<wind_speed>\d{3}))?""", re.VERBOSE)
 #s1_1sTTT_re = re.compile(r"""(?P<air_t>\d{4})""", re.VERBOSE)
 #s1_2sTTT_re = re.compile(r"""(?P<dewp>\d{4})""", re.VERBOSE)
 #s1_3PPPP_re = re.compile(r"""(?P<p_baro>.*)""", re.VERBOSE)
 #s1_4PPPP_re = re.compile(r"""(?P<p_slv>.*)""", re.VERBOSE)
-s1_5appp_re = re.compile(r"""(?P<a>\d)(?P<ppp>\d{3})""", re.VERBOSE)
-s1_6RRRt_re = re.compile(r"""(?P<RRR>\d{3})(?P<t>(\d|/))""", re.VERBOSE)
-s1_7wwWW_re = re.compile(r"""(?P<ww>\d{2})(?P<W1>\d)(?P<W2>\d)""", re.VERBOSE)
-s1_8NCCC_re = re.compile(r"""(?P<N>\d)(?P<CL>(\d|/))(?P<CM>(\d|/))(?P<CH>(\d|/))""", re.VERBOSE)
-s1_9GGgg_re = re.compile(r"""(?P<observation_time>.*)""", re.VERBOSE)
+s1_5appp_re = re.compile(r"""((?P<a>\d)(?P<ppp>\d{3}))?""", re.VERBOSE)
+s1_6RRRt_re = re.compile(r"""((?P<RRR>\d{3})(?P<t>(\d|/)))?""", re.VERBOSE)
+s1_7wwWW_re = re.compile(r"""((?P<ww>\d{2})(?P<W1>\d)(?P<W2>\d))?""", re.VERBOSE)
+s1_8NCCC_re = re.compile(r"""((?P<N>\d)(?P<CL>(\d|/))(?P<CM>(\d|/))(?P<CH>(\d|/)))?""", re.VERBOSE)
+s1_9GGgg_re = re.compile(r"""((?P<observation_time>.*))?""", re.VERBOSE)
 
 
 #split section 2
-section_2_re  = re.compile(r"""(222(?P<dv>\d{2}))\s+
+section_2_re  = re.compile(r"""((222(?P<dv>\d{2}))\s+
                                (0(?P<t_water>(\d|/){4})\s+)?
                                (1(?P<aPPHH>\d{4})\s+)?
                                (2(?P<bPPHH>\d{4})\s+)?
@@ -70,7 +70,7 @@ section_2_re  = re.compile(r"""(222(?P<dv>\d{2}))\s+
                                (5(?P<dPPHH>\d{4})\s+)?
                                (6(?P<IEER>\d{4})\s+)?
                                (70(?P<HHH>\d{3})\s+)?
-                               (8(?P<bsTTT>\d{4})\s+)?""",
+                               (8(?P<bsTTT>\d{4})\s+)?)?""",
                                re.VERBOSE)
 
 #split section 3
@@ -100,8 +100,8 @@ section_3_re = re.compile(r"""(0(?P<xxxx>\d{4}\s+))?
                               (9(?P<SSss>\d{4}\s+){0,9})?""",
                               re.VERBOSE)
 
-s3_EsTT_re = re.compile(r"""(?P<E>\d)(?P<sTT>\d{3})""", re.VERBOSE)
-s3_Esss_re = re.compile(r"""(?P<E>\d)(?P<sss>\d{3})""", re.VERBOSE)
+s3_EsTT_re = re.compile(r"""((?P<E>\d)(?P<sTT>\d{3}))?""", re.VERBOSE)
+s3_Esss_re = re.compile(r"""((?P<E>\d)(?P<sss>\d{3}))?""", re.VERBOSE)
 s3_55SSS_re = re.compile(r"""(55(?P<rad_d_hours>\d\d\d)\s+
                              (0(?P<rad_d_net_pos>\d\d\d\d)\s+)?
                              (1(?P<rad_d_net_neg>\d\d\d\d)\s+)?
@@ -120,10 +120,10 @@ s3_553SS_re = re.compile(r"""(553(?P<rad_h_hours>\d\d)\s+
                              (5(?P<rad_h_long_up>\d\d\d\d)\s+)?
                              (6(?P<rad_h_short>\d\d\d\d)\s+)?)?""",
                              re.VERBOSE)
-s3_8NChh_re = re.compile(r"""(8(?P<c1>\d(\d|/)\d\d)\s+)?
+s3_8NChh_re = re.compile(r"""((8(?P<c1>\d(\d|/)\d\d)\s+)?
                              (8(?P<c2>\d(\d|/)\d\d)\s+)?
                              (8(?P<c3>\d(\d|/)\d\d)\s+)?
-                             (8(?P<c4>\d(\d|/)\d\d)\s+)?""",
+                             (8(?P<c4>\d(\d|/)\d\d)\s+)?)?""",
                              re.VERBOSE)
 
 
@@ -147,6 +147,13 @@ def _report_match(handler, match):
     else:
         _logger.debug("%s didn't match...", handler.__name__)
 
+def missing_value(f):
+    def decorated(*args, **kwargs):
+        if args[1] is None:
+            return np.nan
+        else:
+            return f(*args, **kwargs)
+    return decorated
 
 class synop(object):
     """
@@ -174,37 +181,62 @@ class synop(object):
         self.datetime = None
         self.station_id = None
 
-        self.decoded = sections_re.match(self.raw).groupdict()
+        #self.decoded = sections_re.match(self.raw).groupdict()
+
+        ##split raw report into its sections then split each section into
+        ##its groups and handle (decode) each group
+        #for sname, sraw in self.decoded.items():
+            #if not sraw is None:
+                #pattern, ghandlers = self.handlers[sname]
+                ##TODO
+                ##- add try except for matching and collect string when  match is empty
+                ##sec_groups = patter.match(sraw).groupdict()
+                ##self.decoded[sname] = pattern.match(sraw).groupdict()
+                #gd = pattern.match(sraw).groupdict()
+                ##if section is not none create dictionary for it
+                #if gd is not None:
+                    #self.decoded[sname] = {}
+                ##for gname, graw in sec_groups.items():
+                #for gname, graw in gd.items():
+                    #if not graw is None:
+                        #gpattern, ghandler = ghandlers[gname]
+                        #if gpattern is None:
+                            #self.decoded[sname][gname] = ghandler(self, graw)
+                        #else:
+                            #group = gpattern.match(graw)
+                            #_report_match(ghandler, group.group())
+                            ##self.decoded[sname][gname] = ghandler(self, group.groupdict())
+                            #self.decoded[sname].update(ghandler(self, group.groupdict()))
+                    #else:
+                        #self.decoded[sname][gname] = None
+            #else:
+                #self.decoded[sname] = None
+        
+        self.decoded = sections_re.match(self.raw).groupdict("")
 
         #split raw report into its sections then split each section into
         #its groups and handle (decode) each group
         for sname, sraw in self.decoded.items():
-            if not sraw is None:
-                pattern, ghandlers = self.handlers[sname]
-                #TODO
-                #- add try except for matching and collect string when  match is empty
-                #sec_groups = patter.match(sraw).groupdict()
-                #self.decoded[sname] = pattern.match(sraw).groupdict()
-                gd = pattern.match(sraw).groupdict()
-                #if section is not none create dictionary for it
-                if gd is not None:
-                    self.decoded[sname] = {}
-                #for gname, graw in sec_groups.items():
-                for gname, graw in gd.items():
-                    if not graw is None:
-                        gpattern, ghandler = ghandlers[gname]
-                        if gpattern is None:
-                            self.decoded[sname][gname] = ghandler(self, graw)
-                        else:
-                            group = gpattern.match(graw)
-                            _report_match(ghandler, group.group())
-                            #self.decoded[sname][gname] = ghandler(self, group.groupdict())
-                            self.decoded[sname].update(ghandler(self, group.groupdict()))
-                    else:
-                        self.decoded[sname][gname] = None
-            else:
-                self.decoded[sname] = None
-        
+            pattern, ghandlers = self.handlers[sname]
+            #TODO
+            #- add try except for matching and collect string when  match is empty
+            #sec_groups = patter.match(sraw).groupdict()
+            #self.decoded[sname] = pattern.match(sraw).groupdict()
+            gd = pattern.match(sraw).groupdict("")
+            #if section is not none create dictionary for it
+            self.decoded[sname] = {}
+            #for gname, graw in sec_groups.items():
+            for gname, graw in gd.items():
+                if gname not in ghandlers:
+                    continue
+                gpattern, ghandler = ghandlers[gname]
+                if gpattern is None:
+                    self.decoded[sname][gname] = ghandler(self, graw)
+                else:
+                    group = gpattern.match(graw)
+                    #_report_match(ghandler, group.group())
+                    #self.decoded[sname][gname] = ghandler(self, group.groupdict())
+                    self.decoded[sname].update(ghandler(self, group.groupdict("")))
 
 
     def _default_handler(self, code):
@@ -256,19 +288,22 @@ class synop(object):
             Temperature in degree Celsius
             
         """
-        sign = int(code[0])
-        value = int(code[1:])
-        
-        if sign == 0:
-            sign = -1
-        elif sign == 1:
-            sign = 1
-        elif sign == 9:
-            return value
+        if code == "":
+            return np.nan
+        else:
+            sign = int(code[0])
+            value = int(code[1:])
+            
+            if sign == 0:
+                sign = -1
+            elif sign == 1:
+                sign = 1
+            elif sign == 9:
+                return value
 
-        value = sign * value * 0.1
-        
-        return value
+            value = sign * value * 0.1
+            
+            return value
 
 
     def _handle_PPPP(self, code):
@@ -288,14 +323,17 @@ class synop(object):
             Pressure in Hectopascal
             
         """
-        if code[-1] == "/":
-            value = int(code[0:-1])
+        if code == "" or code is None:
+            return np.nan
         else:
-            value = int(code) * 0.1
+            if code[-1] == "/":
+                value = int(code[0:-1])
+            else:
+                value = int(code) * 0.1
+                
+            value = 1000 + value
             
-        value = 1000 + value
-        
-        return value
+            return value
 
 
     #@static_method
@@ -361,7 +399,8 @@ class synop(object):
                              "1": "Niederschlag wird nur in Abschnitt 1 gemeldet",
                              "2": "Niederschlag wird nur in Abschnitt 3 gemeldet",
                              "3": "Niederschlag nicht gemeldet -- kein Niederschlag vorhanden",
-                             "4": "Niederschlag nicht gemeldet -- Niederschlagsmessung nicht durchgeführt oder nicht vorgesehen"}
+                             "4": "Niederschlag nicht gemeldet -- Niederschlagsmessung nicht durchgeführt oder nicht vorgesehen",
+                             None: np.nan}
 
         station_operation_type_code = {"1": "bemannte Station -- Wettergruppe wird gemeldet",
                                        "2": "bemannte Station -- Wettergruppe nicht gemeldet -- kein signifikantes Wetter",
@@ -369,7 +408,8 @@ class synop(object):
                                        "4": "automatische Station, Typ 1 -- Wettergruppe gemeldet",
                                        "5": "automatische Station, Typ 1 -- Wettergruppe nicht gemeldet -- kein signifikantes Wetter",
                                        "6": "automatische Station, Typ 2 -- Wettergruppe nicht gemeldet -- Wetter nicht feststellbar",
-                                       "7": "automatische Station, Typ 2 -- Wettergruppe wird gemeldet"}
+                                       "7": "automatische Station, Typ 2 -- Wettergruppe wird gemeldet",
+                                       None: np.nan}
 
         cloud_height_0_code = {"0": "0 bis 49 m (0 bis 166 ft)",
                                "1": "50 bis 99 m (167 - 333 ft)",
@@ -381,7 +421,8 @@ class synop(object):
                                "7": "1500 bis 1999 m (5000 - 6666 ft)",
                                "8": "2000 bis 2499 m (6667 - 8333 ft)",
                                "9": "2500 m oder höher (> 8334 ft) oder wolkenlos",
-                               "/": "unbekannt"}
+                               "/": "unbekannt",
+                               None: np.nan}
 
         iihVV = {"precip_group": precip_group_code[d["ir"]],
                  "station_operation": station_operation_type_code[d["ix"]],
@@ -456,8 +497,11 @@ class synop(object):
             re groupdict
 
         """
-
-        return int(d["wind_speed"])
+        ws = d["wind_speed"]
+        if ws == "":
+            return {"wind_speed": np.nan}
+        else:
+            return {"wind_speed": int(ws)}
 
 
     def _handle_5appp(self, d):
@@ -484,7 +528,8 @@ class synop(object):
                   "5": "erst fallend, dann steigend -- resultierender Druck gleich oder tiefer als zuvor",
                   "6": "erst fallend, dann gleichbleibend -- resultierender Druck tiefer als zuvor",
                   "7": "konstant fallend -- resultierender Druck tiefer als zuvor",
-                  "8": "erst steigend oder gleichbleibend, dann fallend -- resultierender Druck tiefer als zuvor"}
+                  "8": "erst steigend oder gleichbleibend, dann fallend -- resultierender Druck tiefer als zuvor",
+                  "": np.nan}
 
         appp = {"p_tendency": a_code[d["a"]],
                  "p_diff": self._handle_PPPP(d["ppp"])}
@@ -518,7 +563,8 @@ class synop(object):
                   "7": "3 Stunden",
                   "8": "9 Stunden",
                   "9": "15 Stunden",
-                  "/": "Sondermessung"}
+                  "/": "Sondermessung",
+                  None: np.nan}
 
         precip_ref_time = t_code[d["t"]]
 
@@ -532,7 +578,6 @@ class synop(object):
         RRRt = {"precip": precip,
                 "ref_time": precip_ref_time}
         return RRRt
-
 
     def _handle_7wwWW(self, d):
         """
@@ -650,7 +695,8 @@ class synop(object):
                                  "96": "leichtes oder mäßiges Gewitter mit Graupel oder Hagel",
                                  "97": "starkes Gewitter mit Regen oder Schnee",
                                  "98": "starkes Gewitter mit Sandsturm",
-                                 "99": "starkes Gewitter mit Graupel oder Hagel"
+                                 "99": "starkes Gewitter mit Graupel oder Hagel",
+                                 "": np.nan
                                  }
 
         #see [1] A-353
@@ -663,7 +709,8 @@ class synop(object):
                                "6": "Regen",
                                "7": "Schnee oder Schneeregen",
                                "8": "Schauer",
-                               "9": "Gewitter"
+                               "9": "Gewitter",
+                               "": np.nan
                               }
 
         wwWW = {"current_weather": current_weather_code[d["ww"]],
@@ -701,7 +748,8 @@ class synop(object):
                            "7": "Stratus fractus oder Cumulus fractus (Fetzenwolken bei Schlechtwetter)",
                            "8": "Cumulus und Stratocumulus (in verschiedenen Höhen)",
                            "9": "Cumulonimbus capillatus (mit Amboß)",
-                           "/": "tiefe Wolken nicht erkennbar wegen Nebel, Dunkel- oder Verborgenheit"
+                           "/": "tiefe Wolken nicht erkennbar wegen Nebel, Dunkel- oder Verborgenheit",
+                           "": np.nan
                           }
 
         medium_clouds_code = {"0": "keine mittelhohen Wolken",
@@ -714,7 +762,8 @@ class synop(object):
                               "7": "Altocumulus (mehrschichtig oder zusammen mit Altostratus/Nimbostratus)",
                               "8": "Altocumulus castellanus oder floccus (cumuliforme Büschel aufweisend)",
                               "9": "Altocumulus eines chaotisch aussehenden Himmels",
-                              "/": "mittelhohe Wolken nicht erkennbar wegen Nebel, Dunkel- oder Verborgenheit"
+                              "/": "mittelhohe Wolken nicht erkennbar wegen Nebel, Dunkel- oder Verborgenheit",
+                              "": np.nan
                              }
 
         high_clouds_code = {"0": "keine hohen Wolken",
@@ -727,7 +776,8 @@ class synop(object):
                             "7": "Cirrostratus (den Himmel stets ganz bedeckend)",
                             "8": "Cirrostratus (den Himmel nicht ganz bedeckend, aber auch nicht zunehmend)",
                             "9": "Cirrocumulus",
-                            "/": "hohe Wolken nicht erkennbar wegen Nebel, Dunkel- oder Verborgenheit"
+                            "/": "hohe Wolken nicht erkennbar wegen Nebel, Dunkel- oder Verborgenheit",
+                            "": np.nan
                             }
 
         NCCC = {"cloud_cover_lowest": d["N"],
@@ -818,11 +868,15 @@ class synop(object):
                                  "7": "ebene Schicht losen, trockenen Schnees, den gesamten Boden bedeckend",
                                  "8": "unebene Schicht losen, trockenen Schnees, den gesamten Boden bedeckend",
                                  "9": "vollständig geschlossene Schneedecke mit hohen Verwehungen (> 50 cm)",
-                                 "/": "Reste (< 10 %) von Schnee oder Eis (Hagel/Graupel/Griesel)"
+                                 "/": "Reste (< 10 %) von Schnee oder Eis (Hagel/Graupel/Griesel)",
+                                 "": np.nan
                                 }
+        sh = np.nan
+        if not d["sss"] == "":
+            sh = int(d["sss"])
 
         Esss = {"ground_cond": ground_condition_code[d["E"]],
-                "snow_height": int(d["sss"])}
+                "snow_height": sh}
 
         return d
     
@@ -849,8 +903,9 @@ class synop(object):
             re groupdict
 
         """
-        d = {k: int(v) for k,v in d.items() if not v is None}
-        d["rad_d_hours"] = d["rad_d_hours"] / 10.0
+        d = {k: int(v) for k,v in d.items() if not v == ""}
+        if "rad_h_hours" in d and not d["rad_h_hours"] == "":
+            d["rad_h_hours"] = d["rad_h_hours"] / 10.0
 
         return d
     
@@ -878,8 +933,9 @@ class synop(object):
             re groupdict
 
         """
-        d = {k: int(v) for k,v in d.items() if not v is None}
-        d["rad_h_hours"] = d["rad_h_hours"] / 10.0
+        d = {k: int(v) for k,v in d.items() if not v == ""}
+        if "rad_d_hours" in d and not d["rad_d_hours"] == "":
+            d["rad_d_hours"] = d["rad_d_hours"] / 10.0
 
         return d
     
@@ -921,16 +977,19 @@ class synop(object):
             re groupdict
 
         """
-        d = int(d)
-
-        if d >= 9998:
-            precip = 999
-        elif d == 9999:
-            precip = "NA"
+        if d == "":
+            return np.nan
         else:
-            precip = d
+            d = int(d)
 
-        return precip
+            if d >= 9998:
+                precip = 999
+            elif d == 9999:
+                precip = np.nan
+            else:
+                precip = d
+
+            return precip
     
 
     def _handle_8NChh(self, d):
@@ -1006,7 +1065,7 @@ class synop(object):
             return h, type
 
 
-        layer_re = re.compile(r"""((?P<cover>\d)(?P<type>(\d|/))(?P<height>\d\d))""", re.VERBOSE)
+        layer_re = re.compile(r"""(((?P<cover>\d)(?P<type>(\d|/))(?P<height>\d\d)))?""", re.VERBOSE)
 
         #count cloud layers
         c_nlayers = 0
@@ -1014,28 +1073,38 @@ class synop(object):
 
         for l, v  in d.items():
             if not v is None:
-                c_nlayers += 1
-                layer = layer_re.match(v).groupdict()
+                layer = layer_re.match(v).groupdict("")
                 cover = layer["cover"]
-                if cover != "/":
-                    d[l + "_cover"] = int(layer["cover"])
+                if cover != "/" and cover != "":
+                    c_nlayers += 1
+                    cover = int(cover)
+                    d[l + "_cover"] = cover
                     #layer["cover"] = int(layer["cover"])
                 else:
-                    d[l + "_cover"] = "NA"
+                    d[l + "_cover"] = np.nan
                     #layer["cover"] = "NA"
 
-                d[l + "_type"] = cloud_type_code[layer["type"]]
+                if layer["type"] != "":
+                    d[l + "_type"] = cloud_type_code[layer["type"]]
+                else:
+                    d[l + "_type"] = np.nan
                 #layer["type"] = cloud_type_code[layer["type"]]
-                h, t = cheight(layer["height"])
-                d[l + "_height"] = h
-                d[l + "_measurement"] = t
-                #layer["height"] = h
-                #layer["measurement"] = t
-                #d[l] = layer
-                #drop item with l key
+
+                if layer["height"] != "":
+                    h, t = cheight(layer["height"])
+                    d[l + "_height"] = h
+                    d[l + "_measurement"] = t
+                else:
+                    d[l + "_height"] = np.nan
+                    d[l + "_measurement"] = np.nan
+
+                    #layer["height"] = h
+                    #layer["measurement"] = t
+                    #d[l] = layer
+                    #drop item with l key
                 del d[l]
             else:
-                d[l] = None
+                d[l] = np.nan
 
             d["c_nlayers"] = c_nlayers
 
@@ -1188,5 +1257,8 @@ class synop(object):
 
         if vars is not None:
             vardict = {x:y for x,y in vardict.items() if x in vars}
+
+        #print(vardict)
+        #print("===============")
 
         return vardict
