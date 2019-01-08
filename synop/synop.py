@@ -1166,9 +1166,14 @@ class synop(object):
 
         return
 
-    def to_dict(self):
+    def to_dict(self, vars=None):
         """
         Convert selected variables of report to a pandas dataframe
+
+        Parameters
+        ----------
+        vars : list of str
+            List of variables to include
 
         Returns
         -------
@@ -1177,22 +1182,11 @@ class synop(object):
         """
         vardict = {}
 
-        rep = self.decoded
-        secs = ["section_0", "section_1", "section_3"]
-        for s in secs:
-            print(s)
-            print(rep[s])
-            for name, v in rep[s].items():
-                if type(v) == dict:
-                    for sname, sv in v.items():
-                        if not sv is None and type(sv) == int:
-                            vardict[sname] = sv
-                        else:
-                            vardict[sname] = np.nan
-                elif v is None:
-                    vardict[name] = np.nan
-                else:
-                    vardict[name] = v
+        for i in self.decoded.values():
+            if i is not None:
+                vardict.update(i)
 
+        if vars is not None:
+            vardict = {x:y for x,y in vardict.items() if x in vars}
 
         return vardict
