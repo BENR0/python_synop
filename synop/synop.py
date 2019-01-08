@@ -184,9 +184,13 @@ class synop(object):
                 #TODO
                 #- add try except for matching and collect string when  match is empty
                 #sec_groups = patter.match(sraw).groupdict()
-                self.decoded[sname] = pattern.match(sraw).groupdict()
+                #self.decoded[sname] = pattern.match(sraw).groupdict()
+                gd = pattern.match(sraw).groupdict()
+                #if section is not none create dictionary for it
+                if gd is not None:
+                    self.decoded[sname] = {}
                 #for gname, graw in sec_groups.items():
-                for gname, graw in self.decoded[sname].items():
+                for gname, graw in gd.items():
                     if not graw is None:
                         gpattern, ghandler = ghandlers[gname]
                         if gpattern is None:
@@ -194,7 +198,8 @@ class synop(object):
                         else:
                             group = gpattern.match(graw)
                             _report_match(ghandler, group.group())
-                            self.decoded[sname][gname] = ghandler(self, group.groupdict())
+                            #self.decoded[sname][gname] = ghandler(self, group.groupdict())
+                            self.decoded[sname].update(ghandler(self, group.groupdict()))
                     else:
                         self.decoded[sname][gname] = None
             else:
@@ -323,7 +328,7 @@ class synop(object):
         if not code == "//":
             code = int(code)
         else:
-            return "NA"
+            return np.nan
         
         if code <= 50:
             dist = 0.1 * code
@@ -1175,6 +1180,8 @@ class synop(object):
         rep = self.decoded
         secs = ["section_0", "section_1", "section_3"]
         for s in secs:
+            print(s)
+            print(rep[s])
             for name, v in rep[s].items():
                 if type(v) == dict:
                     for sname, sv in v.items():
