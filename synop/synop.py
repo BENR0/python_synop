@@ -33,7 +33,7 @@ section_0_re = re.compile(r"""(?P<datetime>[\d]{12})\s+
 #split section 1
 #separate handling of groups because resulting dictionary can not contain double regex group names
 section_1_re  = re.compile(r"""(?P<iihVV>(\d|\/){5})\s+
-                               (?P<Nddff>(\d|/)\d{4})\s+
+                               (?P<Nddff>(\d|/){5})\s+
                                (00(?P<fff>\d{3})\s+)?
                                (1(?P<t_air>(\d|/){4})\s+)?
                                (2(?P<dewp>(\d|/){4})\s+)?
@@ -363,7 +363,7 @@ class synop(object):
                   98: 20,
                   99: 50}
         
-        if not code == "//":
+        if not code == "//" and code != "":
             code = int(code)
         else:
             return np.nan
@@ -400,7 +400,7 @@ class synop(object):
                              "2": "Niederschlag wird nur in Abschnitt 3 gemeldet",
                              "3": "Niederschlag nicht gemeldet -- kein Niederschlag vorhanden",
                              "4": "Niederschlag nicht gemeldet -- Niederschlagsmessung nicht durchgeführt oder nicht vorgesehen",
-                             None: np.nan}
+                             "": np.nan}
 
         station_operation_type_code = {"1": "bemannte Station -- Wettergruppe wird gemeldet",
                                        "2": "bemannte Station -- Wettergruppe nicht gemeldet -- kein signifikantes Wetter",
@@ -409,7 +409,7 @@ class synop(object):
                                        "5": "automatische Station, Typ 1 -- Wettergruppe nicht gemeldet -- kein signifikantes Wetter",
                                        "6": "automatische Station, Typ 2 -- Wettergruppe nicht gemeldet -- Wetter nicht feststellbar",
                                        "7": "automatische Station, Typ 2 -- Wettergruppe wird gemeldet",
-                                       None: np.nan}
+                                       "": np.nan}
 
         cloud_height_0_code = {"0": "0 bis 49 m (0 bis 166 ft)",
                                "1": "50 bis 99 m (167 - 333 ft)",
@@ -422,7 +422,7 @@ class synop(object):
                                "8": "2000 bis 2499 m (6667 - 8333 ft)",
                                "9": "2500 m oder höher (> 8334 ft) oder wolkenlos",
                                "/": "unbekannt",
-                               None: np.nan}
+                               "": np.nan}
 
         iihVV = {"precip_group": precip_group_code[d["ir"]],
                  "station_operation": station_operation_type_code[d["ix"]],
@@ -447,9 +447,9 @@ class synop(object):
 
         """
         cloud_cover = d["N"]
-        if cloud_cover == "/":
+        if cloud_cover == "/" or cloud_cover == "":
             #not observed
-            cloud_cover = "NA"
+            cloud_cover = np.nan
         #elif cloud_cover == "9":
             ##sky not observable/visible
             #cloud_cover = -99
@@ -460,7 +460,7 @@ class synop(object):
         wind_dir = int(d["dd"])
         if wind_dir == 0:
             #no wind
-            wind_dir = "NA"
+            wind_dir = np.nan
         elif wind_dir == 99:
             #circular wind
             wind_dir = -99
