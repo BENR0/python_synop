@@ -288,7 +288,7 @@ class synop(object):
             Temperature in degree Celsius
             
         """
-        if code == "":
+        if code == "" or code == "////":
             return np.nan
         else:
             sign = int(code[0])
@@ -457,24 +457,30 @@ class synop(object):
             cloud_cover = int(cloud_cover)
 
 
-        wind_dir = int(d["dd"])
-        if wind_dir == 0:
-            #no wind
-            wind_dir = np.nan
-        elif wind_dir == 99:
-            #circular wind
-            wind_dir = -99
+        if d["dd"] != "":
+            wind_dir = int(d["dd"])
+            if wind_dir == 0:
+                #no wind
+                wind_dir = np.nan
+            elif wind_dir == 99:
+                #circular wind
+                wind_dir = -99
+            else:
+                #01: 5-14
+                #02: 15-24
+                #03: 25-34
+                #decoding the class to single value in the middle of the class
+                wind_dir = (10 * wind_dir) - 1
         else:
-            #01: 5-14
-            #02: 15-24
-            #03: 25-34
-            #decoding the class to single value in the middle of the class
-            wind_dir = (10 * wind_dir) - 1
+            wind_dir = np.nan
 
 
         #wind speed is greater than 99 units and this group is directly followed
         #by the 00fff group
-        wind_speed = int(d["ff"])
+        if d["ff"] != "":
+            wind_speed = int(d["ff"])
+        else:
+            wind_speed = np.nan
 
         Nddff = {"cloud_cover_tot": cloud_cover,
                  "wind_dir": wind_dir,
