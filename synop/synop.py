@@ -32,7 +32,7 @@ section_0_re = re.compile(r"""(?P<datetime>[\d]{12})\s+
 
 #split section 1
 #separate handling of groups because resulting dictionary can not contain double regex group names
-section_1_re  = re.compile(r"""(?P<iihVV>(\d|\/){5})\s+
+section_1_re  = re.compile(r"""((?P<iihVV>(\d|\/){5})\s+
                                (?P<Nddff>(\d|/){5})\s+
                                (00(?P<fff>\d{3})\s+)?
                                (1(?P<t_air>(\d|/){4})\s+)?
@@ -43,7 +43,7 @@ section_1_re  = re.compile(r"""(?P<iihVV>(\d|\/){5})\s+
                                (6(?P<RRRt>(\d|/){3}\d\s+))?
                                (7(?P<wwWW>\d{2}(\d|/)(\d|/))\s+)?
                                (8(?P<NCCC>(\d|/){4})\s+)?
-                               (9(?P<GGgg>\d{4})\s+)?""",
+                               (9(?P<GGgg>\d{4})\s+)?)?""",
                                re.VERBOSE)
 
 s1_iihVV_re = re.compile(r"""((?P<ir>\d)(?P<ix>\d)(?P<h>(\d|\/))(?P<VV>\d\d))?""", re.VERBOSE)
@@ -213,7 +213,6 @@ class synop(object):
                 #self.decoded[sname] = None
         
         self.decoded = sections_re.match(self.raw).groupdict("")
-
         #split raw report into its sections then split each section into
         #its groups and handle (decode) each group
         for sname, sraw in self.decoded.items():
@@ -223,6 +222,13 @@ class synop(object):
             #sec_groups = patter.match(sraw).groupdict()
             #self.decoded[sname] = pattern.match(sraw).groupdict()
             gd = pattern.match(sraw).groupdict("")
+            #try:
+                #gd = pattern.match(sraw).groupdict("")
+            #except:
+                #print(self.raw)
+                #print(self.decoded)
+                #print(sname, sraw)
+
             #if section is not none create dictionary for it
             self.decoded[sname] = {}
             #for gname, graw in sec_groups.items():
