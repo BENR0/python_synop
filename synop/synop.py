@@ -294,7 +294,7 @@ class synop(object):
             Temperature in degree Celsius
             
         """
-        if code == "" or code == "////":
+        if code == "" or code == "////" or "/" in code:
             return np.nan
         else:
             sign = int(code[0])
@@ -304,6 +304,7 @@ class synop(object):
                 sign = -1
             elif sign == 1:
                 sign = 1
+            #sign = 9 => relative humidity
             elif sign == 9:
                 return value
 
