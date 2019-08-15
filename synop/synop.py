@@ -1073,6 +1073,8 @@ class synop(object):
             elif code >= 90:
                 type = "classes"
                 h = cloud_height_classes[code] 
+            else:
+                h = np.nan
 
             return h, type
 
