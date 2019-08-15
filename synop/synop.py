@@ -543,7 +543,7 @@ class synop(object):
                   "8": "erst steigend oder gleichbleibend, dann fallend -- resultierender Druck tiefer als zuvor",
                   "": np.nan}
 
-        appp = {"p_tendency": a_code[d["a"]],
+        appp = {"p_tendency": a_code.get(d["a"]),
                  "p_diff": self._handle_PPPP(d["ppp"])}
 
         return appp
