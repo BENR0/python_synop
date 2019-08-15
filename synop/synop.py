@@ -430,9 +430,9 @@ class synop(object):
                                "/": "unbekannt",
                                "": np.nan}
 
-        iihVV = {"precip_group": precip_group_code[d["ir"]],
-                 "station_operation": station_operation_type_code[d["ix"]],
-                 "cloud_height": cloud_height_0_code[d["h"]],
+        iihVV = {"precip_group": precip_group_code.get(d["ir"]),
+                 "station_operation": station_operation_type_code.get(d["ix"]),
+                 "cloud_height": cloud_height_0_code.get(d["h"]),
                  "vis": self._handle_vis(d["VV"])}
 
         return iihVV
