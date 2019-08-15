@@ -275,7 +275,7 @@ class synop(object):
                           "1": "meters per second measured",
                           "3": "knots estimate"}
 
-        return wind_unit_code[code]
+        return wind_unit_code.get(code)
 
 
     def _handle_sTTT(self, code):
@@ -1083,7 +1083,7 @@ class synop(object):
         c_nlayers = 0
 
 
-        for l, v  in d.items():
+        for l, v  in list(d.items()):
             if not v is None:
                 layer = layer_re.match(v).groupdict("")
                 cover = layer["cover"]
