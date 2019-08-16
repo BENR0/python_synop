@@ -12,7 +12,7 @@ _logger = logging.getLogger(__name__)
 #regex definitions
 #split report into its sections
 sections_re = re.compile(r"""(?P<section_0>[\d]{12}\s+(AAXX|BBXX|OOXX)\s+[\d]{5}\s+[\d]{5})\s+
-                             (?P<section_1>((\d|\/){5}\s+){0,9})
+                             (?P<section_1>((\d|\/){5}\s+){0,9}){0,1}
                              ((?P<section_2>(222\d\d\s+)(\d{5}\s+){0,9})){0,1}
                              ((333\s+)(?P<section_3>(\d{5}\s+){0,9})){0,1}
                              ((444\s+)(?P<section_4>(\d{5}\s+){0,9})){0,1}
