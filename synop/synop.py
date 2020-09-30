@@ -164,6 +164,7 @@ class synop(object):
     [1] World Meteorological Organization (WMO). 2011. Manual on Codes - International Codes,
         Volume I.1, Annex II to the WMO Technical Regulations: Part A- Alphanumeric Codes.
         2011 edition updated in 2017. WMO.
+    [2] http://www.met.fu-berlin.de/~manfred/fm12.html
     """
     
     def __init__(self, report):
