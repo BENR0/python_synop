@@ -178,6 +178,7 @@ class synop(object):
         
         """
         self.raw = report
+        self.decoded = None
         self.type = "SYNOP"
         self.datetime = None
         self.station_id = None
@@ -274,7 +275,8 @@ class synop(object):
     def _handle_wind_unit(self, code):
         wind_unit_code = {"0": "meters per second estimate",
                           "1": "meters per second measured",
-                          "3": "knots estimate"}
+                          "3": "knots estimate",
+                          "4": "knots measured"}
 
         return wind_unit_code.get(code)
 
@@ -489,6 +491,13 @@ class synop(object):
             wind_speed = int(d["ff"])
         else:
             wind_speed = np.nan
+
+        #convert units if necessary
+        #use unit indicator of section_0
+        w_unit = self.decoded["section_0"]["wind_unit"]
+        knots_to_mps_factor = 0.51444444444444
+        if w_unit in ["knots estimate", "knots measured"]:
+            wind_speed = wind_speed * knots_to_mps_factor
 
         Nddff = {"cloud_cover_tot": cloud_cover,
                  "wind_dir": wind_dir,
