@@ -7,7 +7,29 @@ import logging
 import pandas as pd
 import numpy as np
 
+from .code_description import *
+
 _logger = logging.getLogger(__name__)
+
+#Syntax description
+#section 0
+#MMMM D....D YYGGggi 99LLL QLLLL
+
+#section 1
+#IIiii oder IIIII iihVV Nddff 00fff 1sTTT 2sTTT 3PPPP 4PPPP 5appp 6RRRt 7wwWW 8NCCC 9GGgg
+
+#section 2
+#222Dv 0sTTT 1PPHH 2PPHH 3dddd 4PPHH 5PPHH 6IEER 70HHH 8sTTT
+
+#333 0.... 1sTTT 2sTTT 3EsTT 4E'sss 55SSS 2FFFF 3FFFF 4FFFF 553SS 2FFFF 3FFFF 4FFFF 6RRRt 7RRRR 8NChh
+    #9SSss
+#444 N'C'H'H'C
+#555 0sTTT 1RRRr 2sTTT 22fff 23SS 24Wt 25ww 26fff 3LLLL 5ssst 7hhZD 8N/hh 910ff 911ff 912ff  PIC IN  BOT hsTTT
+    #80000 1RRRRW 2SSSS 3fff 4fff 5RR 6VVVVVV 7sTTT 8sTTT 9sTTTs
+#666 1sTTT 2sTTT 3sTTT 6VVVV/VVVV 7VVVV
+    #80000 0RRRr 1RRRr 2RRRr 3RRRr 4RRRr 5RRRr
+#999 0ddff 2sTTT 3E/// 4E'/// 7RRRz
+
 
 #regex definitions
 #split report into its sections
@@ -265,20 +287,11 @@ class synop(object):
 
 
     def _handle_MMMM(self,  code):
-        station_type_code = {"AAXX": "Landstation (FM 12)",
-                             "BBXX": "Seastation (FM 13)",
-                             "OOXX": "Mobile landstation (FM 14)"}
-
-        return station_type_code[code]
+        return STATION_TYPE_CODE[code]
 
 
     def _handle_wind_unit(self, code):
-        wind_unit_code = {"0": "meters per second estimate",
-                          "1": "meters per second measured",
-                          "3": "knots estimate",
-                          "4": "knots measured"}
-
-        return wind_unit_code.get(code)
+        return WIND_UNIT_CODE.get(code)
 
 
     def _handle_sTTT(self, code):
@@ -405,38 +418,10 @@ class synop(object):
             re groupdict
 
         """
-        precip_group_code = {"0": "Niederschlag wird in den Abschnitten 1 und 3 gemeldet",
-                             "1": "Niederschlag wird nur in Abschnitt 1 gemeldet",
-                             "2": "Niederschlag wird nur in Abschnitt 3 gemeldet",
-                             "3": "Niederschlag nicht gemeldet -- kein Niederschlag vorhanden",
-                             "4": "Niederschlag nicht gemeldet -- Niederschlagsmessung nicht durchgeführt oder nicht vorgesehen",
-                             "": np.nan}
 
-        station_operation_type_code = {"1": "bemannte Station -- Wettergruppe wird gemeldet",
-                                       "2": "bemannte Station -- Wettergruppe nicht gemeldet -- kein signifikantes Wetter",
-                                       "3": "bemannte Station -- Wettergruppe nicht gemeldet -- Wetterbeobachtung nicht durchgeführt",
-                                       "4": "automatische Station, Typ 1 -- Wettergruppe gemeldet",
-                                       "5": "automatische Station, Typ 1 -- Wettergruppe nicht gemeldet -- kein signifikantes Wetter",
-                                       "6": "automatische Station, Typ 2 -- Wettergruppe nicht gemeldet -- Wetter nicht feststellbar",
-                                       "7": "automatische Station, Typ 2 -- Wettergruppe wird gemeldet",
-                                       "": np.nan}
-
-        cloud_height_0_code = {"0": "0 bis 49 m (0 bis 166 ft)",
-                               "1": "50 bis 99 m (167 - 333 ft)",
-                               "2": "100 bis 199 m (334 - 666 ft)",
-                               "3": "200 bis 299 m (667 - 999 ft)",
-                               "4": "300 bis 599 m (1000 - 1999 ft)",
-                               "5": "600 bis 999 m (2000 - 3333 ft)",
-                               "6": "1000 bis 1499 m (3334 - 4999 ft)",
-                               "7": "1500 bis 1999 m (5000 - 6666 ft)",
-                               "8": "2000 bis 2499 m (6667 - 8333 ft)",
-                               "9": "2500 m oder höher (> 8334 ft) oder wolkenlos",
-                               "/": "unbekannt",
-                               "": np.nan}
-
-        iihVV = {"precip_group": precip_group_code.get(d["ir"]),
-                 "station_operation": station_operation_type_code.get(d["ix"]),
-                 "cloud_height": cloud_height_0_code.get(d["h"]),
+        iihVV = {"precip_group": PRECIP_GROUP_CODE.get(d["ir"]),
+                 "station_operation": STATION_OPERATION_TYPE_CODE.get(d["ix"]),
+                 "cloud_height": CLOUD_HEIGHT_0_CODE.get(d["h"]),
                  "vis": self._handle_vis(d["VV"])}
 
         return iihVV
@@ -456,17 +441,6 @@ class synop(object):
             re groupdict
 
         """
-        cloud_cover_code = {"0": "0/8 (wolkenlos)",
-							"1": "1/8 oder weniger (fast wolkenlos)",
-							"2": "2/8 (leicht bewölkt)",
-							"3": "3/8",
-							"4": "4/8 (wolkig)",
-							"5": "5/8",
-							"6": "6/8 (stark bewölkt)",
-							"7": "7/8 oder mehr (fast bedeckt)",
-							"8": "8/8 (bedeckt)",
-							"9": "Himmel nicht erkennbar",
-							"/": "nicht beobachtet"}
 
         cloud_cover = d["N"]
         if cloud_cover == "/" or cloud_cover == "":
@@ -555,18 +529,8 @@ class synop(object):
             re groupdict
 
         """
-        a_code = {"0": "erst steigend, dann fallend -- resultierender Druck gleich oder höher als zuvor",
-                  "1": "erst steigend, dann gleichbleibend -- resultierender Druck höher als zuvor",
-                  "2": "konstant steigend -- resultierender Druck höher als zuvor",
-                  "3": "erst fallend oder gleichbleibend, dann steigend -- resultierender Druck höher als zuvor",
-                  "4": "gleichbleibend -- resultierender Druck unverändert",
-                  "5": "erst fallend, dann steigend -- resultierender Druck gleich oder tiefer als zuvor",
-                  "6": "erst fallend, dann gleichbleibend -- resultierender Druck tiefer als zuvor",
-                  "7": "konstant fallend -- resultierender Druck tiefer als zuvor",
-                  "8": "erst steigend oder gleichbleibend, dann fallend -- resultierender Druck tiefer als zuvor",
-                  "": np.nan}
 
-        appp = {"p_tendency": a_code.get(d["a"]),
+        appp = {"p_tendency": A_CODE.get(d["a"]),
                  "p_diff": self._handle_PPPP(d["ppp"])}
 
         return appp
@@ -588,20 +552,8 @@ class synop(object):
             re groupdict
 
         """
-        t_code = {"0": "nicht aufgeführter oder vor dem Termin endender Zeitraum",
-                  "1": "6 Stunden",
-                  "2": "12 Stunden",
-                  "3": "18 Stunden",
-                  "4": "24 Stunden",
-                  "5": "1 Stunde bzw. 30 Minuten (bei Halbstundenterminen)",
-                  "6": "2 Stunden",
-                  "7": "3 Stunden",
-                  "8": "9 Stunden",
-                  "9": "15 Stunden",
-                  "/": "Sondermessung",
-                  None: np.nan}
 
-        precip_ref_time = t_code[d["t"]]
+        precip_ref_time = T_CODE[d["t"]]
 
         precip = int(d["RRR"])
         if precip > 989:
@@ -631,126 +583,9 @@ class synop(object):
             re groupdict
 
         """
-        current_weather_code = {"00": "Bewölkungsentwicklung nicht beobachtet",
-                                 "01": "Bewölkung abnehmend",
-                                 "02": "Bewölkung unverändert",
-                                 "03": "Bewölkung zunehmend",
-                                 "04": "Sicht durch Rauch oder Asche vermindert",
-                                 "05": "trockener Dunst (relative Feuchte < 80 %)",
-                                 "06": "verbreiteter Schwebstaub, nicht vom Wind herangeführt",
-                                 "07": "Staub oder Sand bzw. Gischt, vom Wind herangeführt",
-                                 "08": "gut entwickelte Staub- oder Sandwirbel",
-                                 "09": "Staub- oder Sandsturm im Gesichtskreis, aber nicht an der Station",
-                                 "10": "feuchter Dunst (relative Feuchte > 80 %)",
-                                 "11": "Schwaden von Bodennebel",
-                                 "12": "durchgehender Bodennebel",
-                                 "13": "Wetterleuchten sichtbar, kein Donner gehört",
-                                 "14": "Niederschlag im Gesichtskreis, nicht den Boden erreichend",
-                                 "15": "Niederschlag in der Ferne (> 5 km), aber nicht an der Station",
-                                 "16": "Niederschlag in der Nähe (< 5 km), aber nicht an der Station",
-                                 "17": "Gewitter (Donner hörbar), aber kein Niederschlag an der Station",
-                                 "18": "Markante Böen im Gesichtskreis, aber kein Niederschlag an der Station",
-                                 "19": "Tromben (trichterförmige Wolkenschläuche) im Gesichtskreis",
-                                 "20": "nach Sprühregen oder Schneegriesel",
-                                 "21": "nach Regen",
-                                 "22": "nach Schneefall",
-                                 "23": "nach Schneeregen oder Eiskörnern",
-                                 "24": "nach gefrierendem Regen",
-                                 "25": "nach Regenschauer",
-                                 "26": "nach Schneeschauer",
-                                 "27": "nach Graupel- oder Hagelschauer",
-                                 "28": "nach Nebel",
-                                 "29": "nach Gewitter",
-                                 "30": "leichter oder mäßiger Sandsturm, an Intensität abnehmend",
-                                 "31": "leichter oder mäßiger Sandsturm, unveränderte Intensität",
-                                 "32": "leichter oder mäßiger Sandsturm, an Intensität zunehmend",
-                                 "33": "schwerer Sandsturm, an Intensität abnehmend",
-                                 "34": "schwerer Sandsturm, unveränderte Intensität",
-                                 "35": "schwerer Sandsturm, an Intensität zunehmend",
-                                 "36": "leichtes oder mäßiges Schneefegen, unter Augenhöhe",
-                                 "37": "starkes Schneefegen, unter Augenhöhe",
-                                 "38": "leichtes oder mäßiges Schneetreiben, über Augenhöhe",
-                                 "39": "starkes Schneetreiben, über Augenhöhe",
-                                 "40": "Nebel in einiger Entfernung",
-                                 "41": "Nebel in Schwaden oder Bänken",
-                                 "42": "Nebel, Himmel erkennbar, dünner werdend",
-                                 "43": "Nebel, Himmel nicht erkennbar, dünner werdend",
-                                 "44": "Nebel, Himmel erkennbar, unverändert",
-                                 "45": "Nebel, Himmel nicht erkennbar, unverändert",
-                                 "46": "Nebel, Himmel erkennbar, dichter werdend",
-                                 "47": "Nebel, Himmel nicht erkennbar, dichter werdend",
-                                 "48": "Nebel mit Reifansatz, Himmel erkennbar",
-                                 "49": "Nebel mit Reifansatz, Himmel nicht erkennbar",
-                                 "50": "unterbrochener leichter Sprühregen",
-                                 "51": "durchgehend leichter Sprühregen",
-                                 "52": "unterbrochener mäßiger Sprühregen",
-                                 "53": "durchgehend mäßiger Sprühregen",
-                                 "54": "unterbrochener starker Sprühregen",
-                                 "55": "durchgehend starker Sprühregen",
-                                 "56": "leichter gefrierender Sprühregen",
-                                 "57": "mäßiger oder starker gefrierender Sprühregen",
-                                 "58": "leichter Sprühregen mit Regen",
-                                 "59": "mäßiger oder starker Sprühregen mit Regen",
-                                 "60": "unterbrochener leichter Regen oder einzelne Regentropfen",
-                                 "61": "durchgehend leichter Regen",
-                                 "62": "unterbrochener mäßiger Regen",
-                                 "63": "durchgehend mäßiger Regen",
-                                 "64": "unterbrochener starker Regen",
-                                 "65": "durchgehend starker Regen",
-                                 "66": "leichter gefrierender Regen",
-                                 "67": "mäßiger oder starker gefrierender Regen",
-                                 "68": "leichter Schneeregen",
-                                 "69": "mäßiger oder starker Schneeregen",
-                                 "70": "unterbrochener leichter Schneefall oder einzelne Schneeflocken",
-                                 "71": "durchgehend leichter Schneefall",
-                                 "72": "unterbrochener mäßiger Schneefall",
-                                 "73": "durchgehend mäßiger Schneefall",
-                                 "74": "unterbrochener starker Schneefall",
-                                 "75": "durchgehend starker Schneefall",
-                                 "76": "Eisnadeln (Polarschnee)",
-                                 "77": "Schneegriesel",
-                                 "78": "Schneekristalle",
-                                 "79": "Eiskörner (gefrorene Regentropfen)",
-                                 "80": "leichter Regenschauer",
-                                 "81": "mäßiger oder starker Regenschauer",
-                                 "82": "äußerst heftiger Regenschauer",
-                                 "83": "leichter Schneeregenschauer",
-                                 "84": "mäßiger oder starker Schneeregenschauer",
-                                 "85": "leichter Schneeschauer",
-                                 "86": "mäßiger oder starker Schneeschauer",
-                                 "87": "leichter Graupelschauer",
-                                 "88": "mäßiger oder starker Graupelschauer",
-                                 "89": "leichter Hagelschauer",
-                                 "90": "mäßiger oder starker Hagelschauer",
-                                 "91": "Gewitter in der letzten Stunde, zurzeit leichter Regen",
-                                 "92": "Gewitter in der letzten Stunde, zurzeit mäßiger oder starker Regen",
-                                 "93": "Gewitter in der letzten Stunde, zurzeit leichter Schneefall/Schneeregen/Graupel/Hagel",
-                                 "94": "Gewitter in der letzten Stunde, zurzeit mäßiger oder starker Schneefall/Schneeregen/Graupel/Hagel",
-                                 "95": "leichtes oder mäßiges Gewitter mit Regen oder Schnee",
-                                 "96": "leichtes oder mäßiges Gewitter mit Graupel oder Hagel",
-                                 "97": "starkes Gewitter mit Regen oder Schnee",
-                                 "98": "starkes Gewitter mit Sandsturm",
-                                 "99": "starkes Gewitter mit Graupel oder Hagel",
-                                 "": np.nan
-                                 }
-
-        #see [1] A-353
-        weather_course_code = {"0": "Wolkendecke stets weniger als oder genau die Hälfte bedeckend (0-4/8)",
-                               "1": "Wolkendecke zeitweise weniger oder genau, zeitweise mehr als die Hälfte bedeckend (</> 4/8)",
-                               "2": "Wolkendecke stets mehr als die Hälfte bedeckend (5-8/8)",
-                               "3": "Staubsturm, Sandsturm oder Schneetreiben",
-                               "4": "Nebel oder starker Dunst",
-                               "5": "Sprühregen",
-                               "6": "Regen",
-                               "7": "Schnee oder Schneeregen",
-                               "8": "Schauer",
-                               "9": "Gewitter",
-                               "": np.nan
-                              }
-
-        wwWW = {"current_weather": current_weather_code[d["ww"]],
-                "w_course1": weather_course_code[d["W1"]],
-                "w_course2": weather_course_code[d["W2"]]}
+        wwWW = {"current_weather": CURRENT_WEATHER_CODE[d["ww"]],
+                "w_course1": WEATHER_COURSE_CODE[d["W1"]],
+                "w_course2": WEATHER_COURSE_CODE[d["W2"]]}
 
         return wwWW
 
@@ -773,52 +608,11 @@ class synop(object):
             re groupdict
 
         """
-        low_clouds_code = {"0": "keine tiefen Wolken",
-                           "1": "Cumulus humilis oder fractus (keine vertikale Entwicklung)",
-                           "2": "Cumulus mediocris oder congestus (mäßige vertikale Entwicklung)",
-                           "3": "Cumulonimbus calvus (keine Umrisse und kein Amboß)",
-                           "4": "Stratocumulus cumulogenitus (entstanden durch Ausbreitung von Cumulus)",
-                           "5": "Stratocumulus",
-                           "6": "Stratus nebulosus oder fractus (durchgehende Wolkenfläche)",
-                           "7": "Stratus fractus oder Cumulus fractus (Fetzenwolken bei Schlechtwetter)",
-                           "8": "Cumulus und Stratocumulus (in verschiedenen Höhen)",
-                           "9": "Cumulonimbus capillatus (mit Amboß)",
-                           "/": "tiefe Wolken nicht erkennbar wegen Nebel, Dunkel- oder Verborgenheit",
-                           "": np.nan
-                          }
-
-        medium_clouds_code = {"0": "keine mittelhohen Wolken",
-                              "1": "Altostratus translucidus (meist durchsichtig)",
-                              "2": "Altostratus opacus oder Nimbostratus",
-                              "3": "Altocumulus translucidus (meist durchsichtig)",
-                              "4": "Bänke von Altocumulus (unregelmäßig, lentikular)",
-                              "5": "Bänder von Altocumulus (den Himmel fortschreitend überziehend)",
-                              "6": "Altocumulus cumulogenitus (entstanden durch Ausbreitung von Cumulus)",
-                              "7": "Altocumulus (mehrschichtig oder zusammen mit Altostratus/Nimbostratus)",
-                              "8": "Altocumulus castellanus oder floccus (cumuliforme Büschel aufweisend)",
-                              "9": "Altocumulus eines chaotisch aussehenden Himmels",
-                              "/": "mittelhohe Wolken nicht erkennbar wegen Nebel, Dunkel- oder Verborgenheit",
-                              "": np.nan
-                             }
-
-        high_clouds_code = {"0": "keine hohen Wolken",
-                            "1": "Cirrus fibratus oder uncinus (büschelartig)",
-                            "2": "Cirrus spissatus, castellanus oder floccus (dicht, in Schwaden)",
-                            "3": "Cirrus spissatus cumulogenitus (aus einem Amboß entstanden)",
-                            "4": "Cirrus uncinus oder fibratus (den Himmel zunehmend oder fortschreitend überziehend)",
-                            "5": "Bänder von zunehmendem Cirrus oder Cirrostratus (nicht höher als 45 Grad über dem Horizont)",
-                            "6": "Bänder von zunehmendem Cirrus oder Cirrostratus (mehr als 45 Grad über dem Horizont, den Himmel nicht ganz bedeckend)",
-                            "7": "Cirrostratus (den Himmel stets ganz bedeckend)",
-                            "8": "Cirrostratus (den Himmel nicht ganz bedeckend, aber auch nicht zunehmend)",
-                            "9": "Cirrocumulus",
-                            "/": "hohe Wolken nicht erkennbar wegen Nebel, Dunkel- oder Verborgenheit",
-                            "": np.nan
-                            }
 
         NCCC = {"cloud_cover_lowest": d["N"],
-                "cloud_type_low": low_clouds_code[d["CL"]],
-                "cloud_type_medium": medium_clouds_code[d["CM"]],
-                "cloud_type_high": high_clouds_code[d["CH"]],
+                "cloud_type_low": LOW_CLOUDS_CODE[d["CL"]],
+                "cloud_type_medium": MEDIUM_CLOUDS_CODE[d["CM"]],
+                "cloud_type_high": HIGH_CLOUDS_CODE[d["CH"]],
                }
 
         return NCCC
@@ -862,18 +656,7 @@ class synop(object):
             re groupdict
 
         """
-        ground_condition_code = {"0": "trocken",
-                                 "1": "feucht",
-                                 "2": "naß",
-                                 "3": "überflutet",
-                                 "4": "gefroren",
-                                 "5": "Glatteis oder Eisglätte (mindestens 50 % des Erdbodens bedeckend)",
-                                 "6": "loser, trockener Sand, den Boden nicht vollständig bedeckend",
-                                 "7": "geschlossene dünne Sandschicht, den Boden vollständig bedeckend",
-                                 "8": "geschlossene dicke Sandschicht, den Boden vollständig bedeckend",
-                                 "9": "extrem trockener Boden mit Rissen"
-                                }
-
+        #use ESTT_GROUND_CONDITIONS_CODE dictionary here
         return d
     
 
@@ -893,24 +676,11 @@ class synop(object):
             re groupdict
 
         """
-        ground_condition_code = {"0": "vorwiegend (> 50 %) mit Eis bedeckt (Hagel-/Graupel-/Grieseldecke)",
-                                 "1": "kompakter oder nasser Schnee, weniger als die Hälfte des Bodens bedeckend (Fl)",
-                                 "2": "kompakter oder nasser Schnee, mehr als die Hälfte, aber den Boden nicht vollständig bedeckend (dbr)",
-                                 "3": "ebene Schicht kompakten oder nassen Schnees, den gesamten Boden bedeckend",
-                                 "4": "unebene Schicht kompakten oder nassen Schneess, den gesamten Boden bedeckend",
-                                 "5": "loser, trockener Schnee, weniger als die Hälfte des Bodens bedeckend (Fl)",
-                                 "6": "loser, trockener Schnee, mehr als die Hälfte, aber den Boden nicht vollständig bedeckend (dbr)",
-                                 "7": "ebene Schicht losen, trockenen Schnees, den gesamten Boden bedeckend",
-                                 "8": "unebene Schicht losen, trockenen Schnees, den gesamten Boden bedeckend",
-                                 "9": "vollständig geschlossene Schneedecke mit hohen Verwehungen (> 50 cm)",
-                                 "/": "Reste (< 10 %) von Schnee oder Eis (Hagel/Graupel/Griesel)",
-                                 "": np.nan
-                                }
         sh = np.nan
         if not d["sss"] == "":
             sh = int(d["sss"])
 
-        Esss = {"ground_cond": ground_condition_code[d["E"]],
+        Esss = {"ground_cond": ESSS_GROUND_CONDITIONS_CODE[d["E"]],
                 "snow_height": sh}
 
         return d
@@ -1046,29 +816,6 @@ class synop(object):
             re groupdict
 
         """
-        cloud_type_code = {"0": "Cirrus (Ci)",
-						   "1": "Cirrocumulus (Cc)",
-						   "2": "Cirrostratus (Cs)",
-						   "3": "Altocumulus (Ac)",
-						   "4": "Altostratus (As)",
-						   "5": "Nimbostratus (Ns)",
-						   "6": "Stratocumulus (Sc)",
-						   "7": "Stratus (St)",
-						   "8": "Cumulus (Cu)",
-						   "9": "Cumulonimbus (Cb)",
-						   "/": "Wolkengattung nicht erkennbar"
-                           }
-
-        cloud_height_classes = {90: 49,
-                                91: 99,
-                                92: 199,
-                                93: 299,
-                                94: 599,
-                                95: 999,
-                                96: 1499,
-                                97: 1999,
-                                98: 2499,
-                                99: 2500}
 
         def cheight(code):
             """
@@ -1095,7 +842,7 @@ class synop(object):
                 h = 10500 + (code - 81) * 1500
             elif code >= 90:
                 type = "classes"
-                h = cloud_height_classes[code] 
+                h = CLOUD_HEIGHT_CLASSES[code] 
             else:
                 h = np.nan
 
@@ -1122,10 +869,10 @@ class synop(object):
                     #layer["cover"] = "NA"
 
                 if layer["type"] != "":
-                    d[l + "_type"] = cloud_type_code[layer["type"]]
+                    d[l + "_type"] = CLOUD_TYPE_CODE[layer["type"]]
                 else:
                     d[l + "_type"] = np.nan
-                #layer["type"] = cloud_type_code[layer["type"]]
+                #layer["type"] = CLOUD_TYPE_CODE[layer["type"]]
 
                 if layer["height"] != "":
                     h, t = cheight(layer["height"])
@@ -1156,7 +903,6 @@ class synop(object):
 
         GG: hours
         gg: minutes
-
 
 
         Parameters
