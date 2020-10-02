@@ -7,7 +7,7 @@ import logging
 import pandas as pd
 import numpy as np
 
-from .code_description import *
+from .code_descriptions import *
 
 _logger = logging.getLogger(__name__)
 

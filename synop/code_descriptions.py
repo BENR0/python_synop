@@ -1,6 +1,8 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
 
+import numpy as np
+
 #Syntax description
 #section 0
 #MMMM D....D YYGGggi 99LLL QLLLL
