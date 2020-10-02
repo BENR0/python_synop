@@ -200,46 +200,19 @@ class synop(object):
         
         """
         self.raw = report
-        self.decoded = None
+        self.decoded = None 
         self.type = "SYNOP"
         self.datetime = None
         self.station_id = None
 
-        #self.decoded = sections_re.match(self.raw).groupdict()
-
-        ##split raw report into its sections then split each section into
-        ##its groups and handle (decode) each group
-        #for sname, sraw in self.decoded.items():
-            #if not sraw is None:
-                #pattern, ghandlers = self.handlers[sname]
-                ##TODO
-                ##- add try except for matching and collect string when  match is empty
-                ##sec_groups = patter.match(sraw).groupdict()
-                ##self.decoded[sname] = pattern.match(sraw).groupdict()
-                #gd = pattern.match(sraw).groupdict()
-                ##if section is not none create dictionary for it
-                #if gd is not None:
-                    #self.decoded[sname] = {}
-                ##for gname, graw in sec_groups.items():
-                #for gname, graw in gd.items():
-                    #if not graw is None:
-                        #gpattern, ghandler = ghandlers[gname]
-                        #if gpattern is None:
-                            #self.decoded[sname][gname] = ghandler(self, graw)
-                        #else:
-                            #group = gpattern.match(graw)
-                            #_report_match(ghandler, group.group())
-                            ##self.decoded[sname][gname] = ghandler(self, group.groupdict())
-                            #self.decoded[sname].update(ghandler(self, group.groupdict()))
-                    #else:
-                        #self.decoded[sname][gname] = None
-            #else:
-                #self.decoded[sname] = None
         
+        #decoded is a dict of dicts in form {"section_x": {"group_name or variable": value}}
         self.decoded = sections_re.match(self.raw).groupdict("")
         #split raw report into its sections then split each section into
         #its groups and handle (decode) each group
-        for sname, sraw in self.decoded.items():
+        #use sorted to make sure report is decoded starting with section 0
+        for sname in sorted(self.decoded.keys()):
+            sraw = self.decoded[sname]
             pattern, ghandlers = self.handlers[sname]
             #TODO
             #- add try except for matching and collect string when  match is empty
@@ -255,11 +228,12 @@ class synop(object):
 
             #if section is not none create dictionary for it
             self.decoded[sname] = {}
-            #for gname, graw in sec_groups.items():
             for gname, graw in gd.items():
                 if gname not in ghandlers:
                     continue
                 gpattern, ghandler = ghandlers[gname]
+                #if the group can be decoded directly without further regex pattern
+                #handle it directly otherwise match it against a group pattern
                 if gpattern is None:
                     self.decoded[sname][gname] = ghandler(self, graw)
                 else:
@@ -916,6 +890,10 @@ class synop(object):
     
 
 
+    #format of the handlers is (group_regex_pattern, handler)
+    #if group regex pattern is None the group can be directly decoded e.g. a single variable in a group
+    #otherwise a pattern is used to split the group using regex so the handler can access each variable
+    #from a dictionary
     sec0_handlers = (section_0_re,
                      {"datetime": (None, _default_handler),
                       "MMMM": (None, _handle_MMMM),
