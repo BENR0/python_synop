@@ -456,6 +456,18 @@ class synop(object):
             re groupdict
 
         """
+        cloud_cover_code = {"0": "0/8 (wolkenlos)",
+							"1": "1/8 oder weniger (fast wolkenlos)",
+							"2": "2/8 (leicht bewölkt)",
+							"3": "3/8",
+							"4": "4/8 (wolkig)",
+							"5": "5/8",
+							"6": "6/8 (stark bewölkt)",
+							"7": "7/8 oder mehr (fast bedeckt)",
+							"8": "8/8 (bedeckt)",
+							"9": "Himmel nicht erkennbar",
+							"/": "nicht beobachtet"}
+
         cloud_cover = d["N"]
         if cloud_cover == "/" or cloud_cover == "":
             #not observed
