@@ -3,6 +3,9 @@
 
 import numpy as np
 
+#wmo manual on codes:
+# https://community.wmo.int/activity-areas/wmo-codes/manual-codes#Codes
+
 #Syntax description
 #section 0
 #MMMM D....D YYGGggi 99LLL QLLLL
