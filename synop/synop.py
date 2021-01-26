@@ -188,6 +188,18 @@ class synop(object):
         2011 edition updated in 2017. WMO.
     [2] Link to WMO manual on codes: https://community.wmo.int/activity-areas/wmo-codes/manual-codes#Codes
     [3] http://www.met.fu-berlin.de/~manfred/fm12.html
+
+    Todo
+    ----
+    - plausibility checks between groups
+        - e.g. cloud height in 8NChh is <30m and fog events
+    - handling of classes for contious variables (e.g. cloud height 0-49m etc.)
+        - add additional information if value is a class or contious (se)
+    - put cloud cover in groups 8NCCC and Nddff in separate method
+    - translate code classes to english with wmo code tables
+    - add exceptions from the wmo manual of codes for group "rules" to methods
+    - check conversion of wind direction angles (also add conversion of angles to words for printing)
+    - add decoding of special weather conditions in 9SSss group of section 3
     """
     
     def __init__(self, report):

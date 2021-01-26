@@ -6,29 +6,30 @@ Package to parse SYNOP reports.
 
 Description
 -----------
+This package allows parsing and decoding of SYNOP reports as speciefied by the WMO.
 
 
 Installation
 ------------
-Download or clone the repository. cd into the directory and install with:
+Currently the package is not available via PyPi in order to use it
+download or clone the repository. cd into the directory and install with:
 ```
 pip install -e .
 ```
 
 Usage
 -----
+```python
+from synop.synop import synop
 
-Todo
-----
-- plausibility checks between groups
-    - e.g. cloud height in 8NChh is <30m and fog events
-- handling of classes for contious variables (e.g. cloud height 0-49m etc.)
-    - add additional information if value is a class or contious (se)
-- put cloud cover in groups 8NCCC and Nddff in separate method
-- translate code classes to english with wmo code tables
-- add exceptions from the wmo manual of codes for group "rules" to methods
-- check conversion of wind direction angles (also add conversion of angles to words for printing)
-- add decoding of special weather conditions in 9SSss group of section 3
+report = "201809051400 AAXX 05141 10224 42680 50704 10230 20139 30174 40180 58010 81101 333 55309 22094 30345 81845 85080 91007 90710"
+
+syn = synop(report)
+
+#get all synop variables as a dict
+syn.to_dict()
+```
+
 
 License
 -------

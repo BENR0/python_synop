@@ -13,7 +13,8 @@ config = {
     "url": "https://github.com/BENR0/python_synop",
     "download_url": "https://github.com/BENR0/python_synop",
     "author_email": ".",
-    "install_requires": [],
+    "install_requires": ["numpy",
+                         "pandas"],
     "packages": ["synop"],
     "scripts": [],
 }
