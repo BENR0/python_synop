@@ -304,9 +304,9 @@ class synop(object):
             value = int(code[1:])
             
             if sign == 0:
-                sign = -1
-            elif sign == 1:
                 sign = 1
+            elif sign == 1:
+                sign = -1
             #sign = 9 => relative humidity
             elif sign == 9:
                 return value
