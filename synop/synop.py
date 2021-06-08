@@ -341,7 +341,7 @@ class synop(object):
             else:
                 value = int(code) * 0.1
             
-            if code[0] == 0:
+            if code[0] == "0":
                 value = 1000 + value
             
             return value
