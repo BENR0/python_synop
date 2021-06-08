@@ -1,0 +1,12 @@
+exclude: '^$'
+fail_fast: false
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.2.3
+    hooks:
+    - id: trailing-whitespace
+      args: [--markdown-linebreak-ext=md]
+    - id: flake8
+      args: [--exclude=__init__.py]
+      additional_dependencies: [flake8-docstrings, flake8-debugger, flake8-bugbear]
+

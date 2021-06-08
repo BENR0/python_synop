@@ -1,46 +1,76 @@
-*.pyc
+### PYTHON IGNORES ###
+*.py[cod]
 
-# Distribution / packaging
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
+# C extensions
+*.so
+
+# Packages
 *.egg
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+*.egg-info
+dist
+build
+doc/build
+eggs
+*.eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
 
 # Installer logs
 pip-log.txt
-pip-delete-this-directory.txt
 
-# Django stuff:
-*.log
-local_settings.py
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+htmlcov
 
-# Jupyter Notebook
-.ipynb_checkpoints
+#Translations
+*.mo
 
-# pyenv
-.python-version
+#Sphinx
+doc/source/_build/*
 
-# virtualenv
-.venv
-venv/
-ENV/
+#Mr Developer
+.mr.developer.cfg
 
+### C IGNORES ###
+# Object files
+*.o
+
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Others
+*~
+# PyCharm Settings
+.idea
+
+# VSCode Settings
+.vscode
+
+# vi / vim swp files
+*.swp
+.DS_STORE
+
+# setuptools_scm files
+# this should be generated automatically when installed
+synop/version.py
+doc/source/api/*.rst

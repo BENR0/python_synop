@@ -1,0 +1,42 @@
+[flake8]
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    doc/source/conf.py
+    synop/version.py
+
+per-file-ignores =
+   */__init__.py:F401,D104
+
+ignore =
+    E256,       # block comment should start with '# '
+    E266,       # to many leading '#' for block comment
+    E123,       # Closing brackets should match same indentation
+    D414,       # Section has no content
+    E20,        # Extra space in brackets
+    E231,E241,  # Multiple spaces around ","
+    E26,        # Comments
+    E4,         # Import formatting
+    E721,       # Comparing types instead of isinstance
+    E731,       # Assigning lambda expression
+    E121,       # continuation line under-indented for hanging indent
+    E126,       # continuation line over-indented for hanging indent
+    E127,       # continuation line over-indented for visual indent
+    E128,       # E128 continuation line under-indented for visual indent
+    E702,       # multiple statements on one line (semicolon)
+    W503,       # line break before binary operator
+    E129,       # visually indented line with same indent as next logical line
+    E116,       # unexpected indentation
+    F811,       # redefinition of unused 'loop' from line 10
+    F841,       # local variable is assigned to but never used
+    E741,       # Ambiguous variable names
+    W504,       # line break after binary operator
+    D105,       # missing docstring for magic method
+    D107,       # init missing docstring
+    D412,       # No blank lines between section header and contents (weird error in slack module)
+    B006,       # Do not use mutable type as argument defaults
+    B009,       # Do not call getattr with a constant attribute value
+
+max-line-length = 120

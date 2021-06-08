@@ -1,0 +1,35 @@
+language: python
+python:
+  - 3.7
+
+before_install:
+  - pip install codecov
+
+install:
+  - pip install ".[test]"
+
+script:
+  - coverage run --source=synop -m pytest
+
+after_success:
+  - codecov
+
+branches:
+  only:
+    - master
+
+#deploy:
+  #- provider: pypi
+    #user: BENR0
+    #password:
+      #secure: s+IPws7jO2QN+bgKqm4ui9J68jqsG2ClGFzTOHUDKxWSQgl54ixnoODzuiYUlJJxhSP5tDZlz9oaAckq9rb1zhaPjdNHRh+Hwy/loLmnnDdHUBDkbNSFs6nqJvwYfS5AN8x92ZEpCekUg9KgsTa2skAPEXGxK4luJct3hyZe4DTuoazevjiNfeCdzk49uHq/ay4S51a7mJ83JerUk4WNyTyIZXfVn2nsHwBDx8Gl64kiiaRRMTMWbgUGELJMarBsYDZKF2ynpZtMi+dq9UlqhW3jtSoiHHEZxbZ/q1FT9Dbyr1kO95SGzfys7FKCa+DYAnPVNTFgvqgSkDGpjDqlstIk3ZRGRo38VHp0Y810JMLnPWQIWjE6c6SrEExNgFbYsdxhtA4tED4ab8LFm648cxQEOhtW6XRraCxW6LfRj6Iorj7FIWo2uUFyDmwIVBDxUG87QcZtShgyHcOlErdAeOUR4rqNI+TMFTlaGpxccbiAP2joHizs3mIazifelfDRQMKsJAdQN6E041s2eHjzYwBsFLAEETiMYZMdwwIvmjEWRsaNW043SwOyn6BC59xdw5SN/L8I3QeHygKxDXaNMkg9fSfhF2v/jTAYvniujs36+izndqybkBhZ0tyOfO1byggyR4fo0uDBNFAkKAIeWHRPjYuJjD+l9fipbh3+Nls=
+    #distributions: sdist
+    #skip_existing: true
+    #on:
+      #tags: true
+
+notifications:
+  slack:
+    secure: meFHinS42Q/qHLYFukuv6X1TygikOqq4RjuYv9PnzfJeSKI0mYvcvK/Dte/HvXM0IzYBpZpE0kJk1eWkjhsQk/lTcXrSHHy+b8SZG4RK5UkLPtNyi+p/5p16Gt+IEncLUjmxWC2f4yZQ/7JzSP9suDtEa68NJDnAxlflxFRcfTNff9mCqeRLGo6RxKkq3s8df0QyxmRyGxf0a0bTL5X1IQ0deuEFlO2rxoctwG5BQnhbBp4/56CFV9lD8KYObIUcARjk52S/0x2JS58hjzuZAMcd1klnG510uim9NeaIHI4gSvLL+gMGJh8d/ct8Pu+IZfXm1hdPdbqVjbcLIfMXsjMhx9YrAt0arx2KQw488/nD8dD/xuBO73LpfSmFVAs1ePmdZsxB2S0xm/pGKa2mpms4LpqB0tlAmYfFJzKKk7bqO6IcKMSTB+tydueuhWnmdV0zS/Zew3uEGe4VSWANOWNzWjz1+S20OlsMFRZ5qKFDJaMX7Gjicx0e6QCzUo5ZipRPwEwcBf8+ohOaKsHHmUSAKUcCxsho0McIHeDue9QA5d2zJCj2Wh5eIWeE5JCOdipSovTGxCfnh7lmYy/GdC2L1TiqNKuxkYcY3YRlOrdarqEWyg7Lo44Fgg300X5lZWatEP3nwhdTtg5VXZRAP0kTapoHYXw0coYGeGdiGIk=
+  on_success: never
+  on_failure: always

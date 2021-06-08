@@ -1,13 +1,14 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""synop object for decoding SYNOP reports."""
 import re
-import datetime
 import logging
-import pandas as pd
 import numpy as np
 
-from .code_descriptions import *
+from .handlers import (default_handler, handle_MMMM, handle_wind_unit, handle_iihVV, handle_Nddff, handle_00fff,
+handle_sTTT, handle_PPPP, handle_5appp, handle_6RRRt, handle_7wwWW, handle_8NCCC, handle_9GGgg, handle_3EsTT,
+handle_4Esss, handle_55SSS, handle_553SS, handle_7RRRR, handle_8NChh)
 
 _logger = logging.getLogger(__name__)
 
@@ -54,19 +55,19 @@ section_0_re = re.compile(r"""(?P<datetime>[\d]{12})\s+
 
 #split section 1
 #separate handling of groups because resulting dictionary can not contain double regex group names
-section_1_re  = re.compile(r"""((?P<iihVV>(\d|\/){5})\s+
-                               (?P<Nddff>(\d|/){5})\s+
-                               (00(?P<fff>\d{3})\s+)?
-                               (1(?P<t_air>(\d|/){4})\s+)?
-                               (2(?P<dewp>(\d|/){4})\s+)?
-                               (3(?P<p_baro>(\d\d\d\d|\d\d\d\/))\s+)?
-                               (4(?P<p_slv>(\d\d\d\d|\d\d\d\/))\s+)?
-                               (5(?P<appp>\d{4})\s+)?
-                               (6(?P<RRRt>(\d|/){3}\d\s+))?
-                               (7(?P<wwWW>\d{2}(\d|/)(\d|/))\s+)?
-                               (8(?P<NCCC>(\d|/){4})\s+)?
-                               (9(?P<GGgg>\d{4})\s+)?)?""",
-                               re.VERBOSE)
+section_1_re = re.compile(r"""((?P<iihVV>(\d|\/){5})\s+
+                              (?P<Nddff>(\d|/){5})\s+
+                              (00(?P<fff>\d{3})\s+)?
+                              (1(?P<t_air>(\d|/){4})\s+)?
+                              (2(?P<dewp>(\d|/){4})\s+)?
+                              (3(?P<p_baro>(\d\d\d\d|\d\d\d\/))\s+)?
+                              (4(?P<p_slv>(\d\d\d\d|\d\d\d\/))\s+)?
+                              (5(?P<appp>\d{4})\s+)?
+                              (6(?P<RRRt>(\d|/){3}\d\s+))?
+                              (7(?P<wwWW>\d{2}(\d|/)(\d|/))\s+)?
+                              (8(?P<NCCC>(\d|/){4})\s+)?
+                              (9(?P<GGgg>\d{4})\s+)?)?""",
+                              re.VERBOSE)
 
 s1_iihVV_re = re.compile(r"""((?P<ir>\d)(?P<ix>\d)(?P<h>(\d|\/))(?P<VV>\d\d))?""", re.VERBOSE)
 s1_Nddff_re = re.compile(r"""((?P<N>(\d|/))(?P<dd>\d\d)(?P<ff>\d\d))?""", re.VERBOSE)
@@ -83,32 +84,19 @@ s1_9GGgg_re = re.compile(r"""((?P<observation_time>.*))?""", re.VERBOSE)
 
 
 #split section 2
-section_2_re  = re.compile(r"""((222(?P<dv>\d{2}))\s+
-                               (0(?P<t_water>(\d|/){4})\s+)?
-                               (1(?P<aPPHH>\d{4})\s+)?
-                               (2(?P<bPPHH>\d{4})\s+)?
-                               ((3(?P<dddd>\d\d\d\d)\s+){0,2})?
-                               (4(?P<cPPHH>\d{4})\s+)?
-                               (5(?P<dPPHH>\d{4})\s+)?
-                               (6(?P<IEER>\d{4})\s+)?
-                               (70(?P<HHH>\d{3})\s+)?
-                               (8(?P<bsTTT>\d{4})\s+)?)?""",
-                               re.VERBOSE)
+section_2_re = re.compile(r"""((222(?P<dv>\d{2}))\s+
+                              (0(?P<t_water>(\d|/){4})\s+)?
+                              (1(?P<aPPHH>\d{4})\s+)?
+                              (2(?P<bPPHH>\d{4})\s+)?
+                              ((3(?P<dddd>\d\d\d\d)\s+){0,2})?
+                              (4(?P<cPPHH>\d{4})\s+)?
+                              (5(?P<dPPHH>\d{4})\s+)?
+                              (6(?P<IEER>\d{4})\s+)?
+                              (70(?P<HHH>\d{3})\s+)?
+                              (8(?P<bsTTT>\d{4})\s+)?)?""",
+                              re.VERBOSE)
 
 #split section 3
-#separate handling of groups
-#section_3_re  = re.compile(r"""(?P<tmax_12>(1(?P<sign>\d)(?P<value>\d\d\d)\s+))?
-                               #(?P<tmin_12>(2(?P<sign1>\d)(?P<value1>\d\d\d)\s+))?
-                               #(?P<tmin_12_boden>(3(?P<ground_state>\d)(?P<sign2>\d)(?P<value2>\d\d)\s+))?
-                               #(?P<snow_cover>(4(?P<ground_state1>\d)(?P<value3>\d\d\d)\s+))?
-                               #(?P<sun_prev_day>(55(?P<duration>\d\d\d)\s+(2(?P<rad_sum>\d\d\d\d)\s+)?(3(?P<rad_diff>\d\d\d\d)\s+)?(4(?P<rad_ir>\d\d\d\d)\s+)?))?
-                               #(?P<sun_prev_hour>(553(?P<duration1>\d\d)\s+(2(?P<rad_sum1>\d\d\d\d)\s+)?(3(?P<rad_diff1>\d\d\d\d)\s+)?(4(?P<rad_ir1>\d\d\d\d)\s+)?))?
-                               #(?P<precip>(6(?P<value4>(\d\d\d|///))(?P<ref_time>\d)\s+))?
-                               #(7(?P<precip_24>\d\d\d\d)\s+)?
-                               #(?P<clouds>(8(?P<code>\d\d\d\d)\s+){0,4})?
-                               #(?P<special_weather>(9(?P<code1>\d\d\d\d)\s+){0,6})?""",
-                               #re.VERBOSE)
-
 section_3_re = re.compile(r"""(0(?P<xxxx>\d{4}\s+))?
                               (1(?P<t_max>\d{4}\s+))?
                               (2(?P<t_min>\d{4}\s+))?
@@ -148,9 +136,6 @@ s3_8NChh_re = re.compile(r"""((8(?P<c1>\d(\d|/)\d\d)\s+)?
                              (8(?P<c4>\d(\d|/)\d\d)\s+)?)?""",
                              re.VERBOSE)
 
-
-
-
 section_4_re = re.compile(r"""(?P<any>.*\s+)?""", re.VERBOSE)
 
 section_5_re = section_4_re
@@ -161,15 +146,15 @@ section_9_re = section_4_re
 
 
 def _report_match(handler, match):
-    """
-    Report success or failure of the given handler function. (DEBUG)
-    """
+    """Report success or failure of the given handler function. (DEBUG)."""
     if match:
         _logger.debug("%s matched '%s'", handler.__name__, match)
     else:
         _logger.debug("%s didn't match...", handler.__name__)
 
+
 def missing_value(f):
+    """Missing value decorator."""
     def decorated(*args, **kwargs):
         if args[1] is None:
             return np.nan
@@ -177,9 +162,9 @@ def missing_value(f):
             return f(*args, **kwargs)
     return decorated
 
+
 class synop(object):
-    """
-    SYNOP report
+    """SYNOP report.
 
     References
     ----------
@@ -201,24 +186,22 @@ class synop(object):
     - check conversion of wind direction angles (also add conversion of angles to words for printing)
     - add decoding of special weather conditions in 9SSss group of section 3
     """
-    
+
     def __init__(self, report):
-        """
-        Decode SYNOP report
-        
+        """Decode SYNOP report.
+
         Parameters
         ----------
         report : str
             Raw SYNOP report
-        
+
         """
         self.raw = report
-        self.decoded = None 
+        self.decoded = None
         self.type = "SYNOP"
         self.datetime = None
         self.station_id = None
 
-        
         #decoded is a dict of dicts in form {"section_x": {"group_name or variable": value}}
         self.decoded = sections_re.match(self.raw).groupdict("")
         #split raw report into its sections then split each section into
@@ -248,745 +231,96 @@ class synop(object):
                 #if the group can be decoded directly without further regex pattern
                 #handle it directly otherwise match it against a group pattern
                 if gpattern is None:
-                    self.decoded[sname][gname] = ghandler(self, graw)
+                    self.decoded[sname][gname] = ghandler(graw)
                 else:
                     group = gpattern.match(graw)
                     #_report_match(ghandler, group.group())
                     #self.decoded[sname][gname] = ghandler(self, group.groupdict())
-                    self.decoded[sname].update(ghandler(self, group.groupdict("")))
-
-
-    def _default_handler(self, code):
-        """
-        Default handler
-
-        Parameters
-        ----------
-        code : str
-            Raw data to be decoded
-
-        Returns
-        -------
-        str
-            input string
-        """
-        return code
-
-
-    def _handle_MMMM(self,  code):
-        return STATION_TYPE_CODE[code]
-
-
-    def _handle_wind_unit(self, code):
-        return WIND_UNIT_CODE.get(code)
-
-
-    def _handle_sTTT(self, code):
-        """
-        Decode temperature
-        
-        Parameters
-        ----------
-        code : str
-            Temperature with first charater defining the sign or
-            type of unit (°C or relative humidity in % for dewpoint)
-            
-        Returns
-        -------
-        float
-            Temperature in degree Celsius
-            
-        """
-        if code == "" or code == "////" or "/" in code:
-            return np.nan
-        else:
-            sign = int(code[0])
-            value = int(code[1:])
-            
-            if sign == 0:
-                sign = -1
-            elif sign == 1:
-                sign = 1
-            #sign = 9 => relative humidity
-            elif sign == 9:
-                return value
-
-            value = sign * value * 0.1
-            
-            return value
-
-
-    def _handle_PPPP(self, code):
-        """
-        Decode pressure
-        
-        Parameters
-        ----------
-        code : str
-            Pressure code without thousands in  1/10 Hectopascal.
-            If last character of code is "/" pressure is given as
-            full Hectopascal.
-            
-        Returns
-        -------
-        float
-            Pressure in Hectopascal
-            
-        """
-        if code == "" or code is None:
-            return np.nan
-        else:
-            if code[-1] == "/":
-                value = int(code[0:-1])
-            else:
-                value = int(code) * 0.1
-            
-            if code[0] == "0":
-                value = 1000 + value
-            
-            return value
-
-
-    #@static_method
-    def _handle_vis(self, code):
-        """
-        Decode visibility of synop report
-        
-        Parameters
-        ----------
-        code : str
-            VV part of iihVV group
-        
-        Returns
-        -------
-        float
-            Visibility in km
-
-        """
-        vislut = {90: 0.05,
-                  91: 0.05,
-                  92: 0.2,
-                  93: 0.5,
-                  94: 1,
-                  95: 2,
-                  96: 4,
-                  97: 10,
-                  98: 20,
-                  99: 50}
-        
-        if not code == "//" and code != "":
-            code = int(code)
-        else:
-            return np.nan
-        
-        if code <= 50:
-            dist = 0.1 * code
-        elif code > 50 and code <= 80:
-            dist = 6 + (code - 56) * 1
-        elif code > 80 and code <= 89:
-            dist = 35 + (code - 81) * 5
-        else:
-            dist = vislut[code]
-        
-        return dist
-
-
-    def _handle_iihVV(self, d):
-        """
-        Handles iihVV group in section 1
-
-        i: precipitation group indicator (ir)
-        i: station type and weather group indicator (ix)
-        h: cloud base of lowest observed cloud
-        VV: horizontal visibility
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-
-        iihVV = {"precip_group": PRECIP_GROUP_CODE.get(d["ir"]),
-                 "station_operation": STATION_OPERATION_TYPE_CODE.get(d["ix"]),
-                 "cloud_height": CLOUD_HEIGHT_0_CODE.get(d["h"]),
-                 "vis": self._handle_vis(d["VV"])}
-
-        return iihVV
-
-
-    def _handle_Nddff(self, d):
-        """
-        Handles Nddff group in section 1
-
-        N: total cloud cover in okta
-        dd: wind direction in dekadegree (10 minute mean)
-        ff: wind speed (10 minute mean)
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-
-        cloud_cover = d["N"]
-        if cloud_cover == "/" or cloud_cover == "":
-            #not observed
-            cloud_cover = np.nan
-        #elif cloud_cover == "9":
-            ##sky not observable/visible
-            #cloud_cover = -99
-        else:
-            cloud_cover = int(cloud_cover)
-
-
-        if d["dd"] != "":
-            wind_dir = int(d["dd"])
-            if wind_dir == 0:
-                #no wind
-                wind_dir = np.nan
-            elif wind_dir == 99:
-                #circular wind
-                wind_dir = -99
-            else:
-                #01: 5-14
-                #02: 15-24
-                #03: 25-34
-                #decoding the class to single value in the middle of the class
-                wind_dir = (10 * wind_dir) - 1
-        else:
-            wind_dir = np.nan
-
-
-        #wind speed is greater than 99 units and this group is directly followed
-        #by the 00fff group
-        if d["ff"] != "":
-            wind_speed = int(d["ff"])
-        else:
-            wind_speed = np.nan
-
-        #convert units if necessary
-        #use unit indicator of section_0
-        w_unit = self.decoded["section_0"]["wind_unit"]
-        knots_to_mps_factor = 0.51444444444444
-        if w_unit in ["knots estimate", "knots measured"]:
-            wind_speed = wind_speed * knots_to_mps_factor
-
-        Nddff = {"cloud_cover_tot": cloud_cover,
-                 "wind_dir": wind_dir,
-                 "wind_speed": wind_speed}
-
-        return Nddff
-
-
-    def _handle_00fff(self, d):
-        """
-        Handles 00fff group in section 1
-
-        This group is only present if wind speed is above 99 units.
-
-        fff: wind speed (10 minute mean)
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-        ws = d["wind_speed"]
-        if ws == "":
-            return {"wind_speed": np.nan}
-        else:
-            return {"wind_speed": int(ws)}
-
-
-    def _handle_5appp(self, d):
-        """
-        Handles 5appp group in section 1
-
-        3 hourly tendency of station air pressure
-
-        a: type of pressure tendency
-        ppp: absolute pressure change over last three hours in 1/10 Hectopascal
-
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-
-        appp = {"p_tendency": A_CODE.get(d["a"]),
-                 "p_diff": self._handle_PPPP(d["ppp"])}
-
-        return appp
-
-
-    def _handle_6RRRt(self, d):
-        """
-        Handles 6RRRt group in section 1
-
-        Amount of melted precipitation
-
-        RRR: precipitation amount in mm
-        t: reference time
-
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-
-        precip_ref_time = T_CODE[d["t"]]
-
-        precip = int(d["RRR"])
-        if precip > 989:
-            precip = (precip - 990) * 0.1
-            if precip == 0:
-                #only traces of precipitation not measurable < 0.05
-                precip = 0.05
-
-        RRRt = {"precip": precip,
-                "ref_time": precip_ref_time}
-        return RRRt
-
-    def _handle_7wwWW(self, d):
-        """
-        Handles 7wwWW group in section 1
-
-        Current weather and weather course
-        
-        ww: current weather
-        W: weather course (W1)
-        W: weather course (W2)
-
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-        wwWW = {"current_weather": CURRENT_WEATHER_CODE[d["ww"]],
-                "w_course1": WEATHER_COURSE_CODE[d["W1"]],
-                "w_course2": WEATHER_COURSE_CODE[d["W2"]]}
-
-        return wwWW
-
-
-    def _handle_8NCCC(self, d):
-        """
-        Handles 8NCCC group in section 1
-
-        Information about cloud types
-
-        N: cover of low clouds if not present amount of medium high clouds
-        C: type of low clouds (CL)
-        C: type of medium clouds (CM)
-        C: type of high clouds (CH)
-
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-
-        NCCC = {"cloud_cover_lowest": d["N"],
-                "cloud_type_low": LOW_CLOUDS_CODE[d["CL"]],
-                "cloud_type_medium": MEDIUM_CLOUDS_CODE[d["CM"]],
-                "cloud_type_high": HIGH_CLOUDS_CODE[d["CH"]],
-               }
-
-        return NCCC
-
-
-    def _handle_9GGgg(self, d):
-        """
-        Handles 9GGgg group in section 1
-
-        Observation time (UTC)
-
-        GG: hours
-        gg: minutes
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-        time = d["observation_time"]
-
-        return d
-
-    #############################
-    #Handling of section 3 groups
-    #############################
-    def _handle_3EsTT(self, d):
-        """
-        Handles 3EsTT group in section 3
-
-        12 respectively 15 hour minimum temperature 5cm above ground/snow cover
-
-        E: condition of the ground, the snow respectively
-        sTT: temperature with s being the sign
-             only reported at 06, 09, and 18 UTC. /// at 00 and 12 UTC
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-        #use ESTT_GROUND_CONDITIONS_CODE dictionary here
-        return d
-    
-
-    def _handle_4Esss(self, d):
-        """
-        Handles 4Esss group in section 3
-
-        Snow height
-        Only reported at 00, 06, 12, 18 UTC.
-
-        E: condition of the ground with snow/ice
-        sss: snow height in cm
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-        sh = np.nan
-        if not d["sss"] == "":
-            sh = int(d["sss"])
-
-        Esss = {"ground_cond": ESSS_GROUND_CONDITIONS_CODE[d["E"]],
-                "snow_height": sh}
-
-        return d
-    
-
-    def _handle_55SSS(self, d):
-        """
-        Handles 55SSS group and the groups following it in section 3
-
-        55SSS: Sunshine duration of the previous day in 1/10 hours (only reported at 06 UTC)
-        0FFFF: positive net radiation in J/m^⁻2
-        1FFFF: negative net radiation in J/m^⁻2
-        2FFFF: sum of global radiation in J/m^⁻2
-        3FFFF: sum of diffuse sky radiation in J/m^⁻2
-        4FFFF: sum of downward long-wave radiation radiation in J/m^⁻2
-        5FFFF: sum of upward long-wave radiation radiation in J/m^⁻2
-        6FFFF: sum of short-wave radiation radiation in J/m^⁻2
-
-        SSS: hours
-        FFF: radiation in J/m^-2
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-        d = {k: int(v) for k,v in d.items() if not v == ""}
-        if "rad_h_hours" in d and not d["rad_h_hours"] == "":
-            d["rad_h_hours"] = d["rad_h_hours"] / 10.0
-
-        return d
-    
-
-    def _handle_553SS(self, d):
-        """
-        Handles 553SS group and the groups following it in section 3
-
-        553SS: Sunshine duration of the the last full or half (only for half hour measurements)
-               hour in 1/10 hours (only reported at 06 UTC)
-        0FFFF: positive net radiation in kJ/m^⁻2
-        1FFFF: negative net radiation in kJ/m^⁻2
-        2FFFF: sum of global radiation in kJ/m^⁻2
-        3FFFF: sum of diffuse sky radiation in kJ/m^⁻2
-        4FFFF: sum of downward long-wave radiation radiation in kJ/m^⁻2
-        5FFFF: sum of upward long-wave radiation radiation in kJ/m^⁻2
-        6FFFF: sum of short-wave radiation radiation in kJ/m^⁻2
-
-        SSS: hours
-        FFF: radiation in kJ/m^-2
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-        d = {k: int(v) for k,v in d.items() if not v == ""}
-        if "rad_d_hours" in d and not d["rad_d_hours"] == "":
-            d["rad_d_hours"] = d["rad_d_hours"] / 10.0
-
-        return d
-    
-
-    def _handle_6RRRt(self, d):
-        """
-        Handles 6RRRt group in section 3
-
-        Melted precipitation.
-        Three hourly precipitation height.
-
-        NOTE: Only present if regulation 12.2.5.2 applies (see ref [1] A-24)
-
-        GG: hours
-        gg: minutes
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-
-        return d
-    
-
-    def _handle_7RRRR(self, d):
-        """
-        Handles 7RRRR group in section 3
-
-        Reports total precipitation amount during the 24 hour period
-        ending at the time of observation in 1/10 of millimetre.
-
-        RRRR: precip in 1/10 mm (9999 for trace)
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-        if d == "":
-            return np.nan
-        else:
-            d = int(d)
-
-            if d >= 9998:
-                precip = 999
-            elif d == 9999:
-                precip = np.nan
-            else:
-                precip = d
-
-            return precip
-    
-
-    def _handle_8NChh(self, d):
-        """
-        Handles 8NChh group in section 3
-
-        Report of cloud layers. May be repeated up to 4 times.
-
-        N: cloud cover in okta.
-           If 9 obscured by fog or other meteorological phenomena.
-           If / observation not made or not possible due to phenomena other
-           than 9
-        C: cloud type
-        hh: height of cloud base in m
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-
-        def cheight(code):
-            """
-            Decode cloud height
-
-            Parameters
-            ----------
-            code : str
-
-            Returns
-            -------
-            int
-                Cloud height in m
-            """
-            code = int(code)
-
-            type = "continous"
-
-            if code <= 50:
-                h = code * 30
-            elif code >= 56 and code <= 80:
-                h = 1800 + (code - 56) * 300
-            elif code >= 81 and code <= 89:
-                h = 10500 + (code - 81) * 1500
-            elif code >= 90:
-                type = "classes"
-                h = CLOUD_HEIGHT_CLASSES[code] 
-            else:
-                h = np.nan
-
-            return h, type
-
-
-        layer_re = re.compile(r"""(((?P<cover>\d)(?P<type>(\d|/))(?P<height>\d\d)))?""", re.VERBOSE)
-
-        #count cloud layers
-        c_nlayers = 0
-
-
-        for l, v  in list(d.items()):
-            if not v is None:
-                layer = layer_re.match(v).groupdict("")
-                cover = layer["cover"]
-                if cover != "/" and cover != "":
-                    c_nlayers += 1
-                    cover = int(cover)
-                    d[l + "_cover"] = cover
-                    #layer["cover"] = int(layer["cover"])
-                else:
-                    d[l + "_cover"] = np.nan
-                    #layer["cover"] = "NA"
-
-                if layer["type"] != "":
-                    d[l + "_type"] = CLOUD_TYPE_CODE[layer["type"]]
-                else:
-                    d[l + "_type"] = np.nan
-                #layer["type"] = CLOUD_TYPE_CODE[layer["type"]]
-
-                if layer["height"] != "":
-                    h, t = cheight(layer["height"])
-                    d[l + "_height"] = h
-                    d[l + "_measurement"] = t
-                else:
-                    d[l + "_height"] = np.nan
-                    d[l + "_measurement"] = np.nan
-
-                    #layer["height"] = h
-                    #layer["measurement"] = t
-                    #d[l] = layer
-                    #drop item with l key
-                del d[l]
-            else:
-                d[l] = np.nan
-
-            d["c_nlayers"] = c_nlayers
-
-        return d
-    
-
-    def _handle_9GGgg(self, d):
-        """
-        Handles 9GGgg group in section 1
-
-        Observation time (UTC)
-
-        GG: hours
-        gg: minutes
-
-
-        Parameters
-        ----------
-        d : dict
-            re groupdict
-
-        """
-
-        return d
-    
-
+                    self.decoded[sname].update(ghandler(group.groupdict("")))
 
     #format of the handlers is (group_regex_pattern, handler)
     #if group regex pattern is None the group can be directly decoded e.g. a single variable in a group
     #otherwise a pattern is used to split the group using regex so the handler can access each variable
     #from a dictionary
     sec0_handlers = (section_0_re,
-                     {"datetime": (None, _default_handler),
-                      "MMMM": (None, _handle_MMMM),
-                      "monthdayr": (None, _default_handler),
-                      "hourr": (None, _default_handler),
-                      "wind_unit": (None, _handle_wind_unit),
-                      "station_id": (None, _default_handler)})
+                     {"datetime": (None, default_handler),
+                      "MMMM": (None, handle_MMMM),
+                      "monthdayr": (None, default_handler),
+                      "hourr": (None, default_handler),
+                      "wind_unit": (None, handle_wind_unit),
+                      "station_id": (None, default_handler)
+                      })
 
     sec1_handlers = (section_1_re,
-                     {"iihVV": (s1_iihVV_re, _handle_iihVV),
-                      "Nddff": (s1_Nddff_re, _handle_Nddff),
-                      "fff": (s1_00fff_re, _handle_00fff),
-                      "t_air": (None, _handle_sTTT),
-                      "dewp": (None, _handle_sTTT),
-                      "p_baro": (None, _handle_PPPP),
-                      "p_slv": (None, _handle_PPPP),
-                      "appp": (s1_5appp_re, _handle_5appp),
-                      "RRRt": (s1_6RRRt_re, _handle_6RRRt),
-                      "wwWW": (s1_7wwWW_re, _handle_7wwWW),
-                      "NCCC": (s1_8NCCC_re, _handle_8NCCC),
-                      "GGgg": (s1_9GGgg_re, _handle_9GGgg),
-                     })
+                     {"iihVV": (s1_iihVV_re, handle_iihVV),
+                      "Nddff": (s1_Nddff_re, handle_Nddff),
+                      "fff": (s1_00fff_re, handle_00fff),
+                      "t_air": (None, handle_sTTT),
+                      "dewp": (None, handle_sTTT),
+                      "p_baro": (None, handle_PPPP),
+                      "p_slv": (None, handle_PPPP),
+                      "appp": (s1_5appp_re, handle_5appp),
+                      "RRRt": (s1_6RRRt_re, handle_6RRRt),
+                      "wwWW": (s1_7wwWW_re, handle_7wwWW),
+                      "NCCC": (s1_8NCCC_re, handle_8NCCC),
+                      "GGgg": (s1_9GGgg_re, handle_9GGgg),
+                      })
 
     sec2_handlers = (section_2_re,
-                     {"t_water": (None, _handle_sTTT),
-                      "aPPHH": (None, _default_handler),
-                      "bPPHH": (None, _default_handler),
-                      "dddd": (None, _default_handler),
-                      "cPPHH": (None, _default_handler),
-                      "dPPHH": (None, _default_handler),
-                      "IEER": (None, _default_handler),
-                      "HHH": (None, _default_handler),
-                      "bsTTT": (None, _handle_sTTT),
-                     })
+                     {"t_water": (None, handle_sTTT),
+                      "aPPHH": (None, default_handler),
+                      "bPPHH": (None, default_handler),
+                      "dddd": (None, default_handler),
+                      "cPPHH": (None, default_handler),
+                      "dPPHH": (None, default_handler),
+                      "IEER": (None, default_handler),
+                      "HHH": (None, default_handler),
+                      "bsTTT": (None, handle_sTTT),
+                      })
 
     sec3_handlers = (section_3_re,
-                     {"xxxx": (None, _default_handler),
-                      "t_max": (None, _handle_sTTT),
-                      "t_min": (None, _handle_sTTT),
-                      "EsTT": (s3_EsTT_re, _handle_3EsTT),
-                      "Esss": (s3_Esss_re, _handle_4Esss),
-                      "SSS": (s3_55SSS_re, _handle_55SSS),
-                      "SS": (s3_553SS_re, _handle_553SS),
-                      "RRRt": (s1_6RRRt_re, _handle_6RRRt),
-                      "precip": (None, _handle_7RRRR),
-                      "NChh": (s3_8NChh_re, _handle_8NChh),
-                      "SSss": (None, _default_handler),
-                     })
+                     {"xxxx": (None, default_handler),
+                      "t_max": (None, handle_sTTT),
+                      "t_min": (None, handle_sTTT),
+                      "EsTT": (s3_EsTT_re, handle_3EsTT),
+                      "Esss": (s3_Esss_re, handle_4Esss),
+                      "SSS": (s3_55SSS_re, handle_55SSS),
+                      "SS": (s3_553SS_re, handle_553SS),
+                      "RRRt": (s1_6RRRt_re, handle_6RRRt),
+                      "precip": (None, handle_7RRRR),
+                      "NChh": (s3_8NChh_re, handle_8NChh),
+                      "SSss": (None, default_handler),
+                      })
 
     sec4_handlers = (section_4_re,
-                     {"any": (None, _default_handler),
-                     })
+                     {"any": (None, default_handler),
+                      })
 
     sec5_handlers = (section_5_re,
-                     {"any": (None, _default_handler),
-                     })
+                     {"any": (None, default_handler),
+                      })
 
     sec6_handlers = (section_6_re,
-                     {"any": (None, _default_handler),
-                     })
+                     {"any": (None, default_handler),
+                      })
 
     sec9_handlers = (section_9_re,
-                     {"any": (None, _default_handler),
-                     })
+                     {"any": (None, default_handler),
+                      })
 
     handlers = {"section_0": sec0_handlers,
-                     "section_1": sec1_handlers,
-                     "section_2": sec2_handlers,
-                     "section_3": sec3_handlers,
-                     "section_4": sec4_handlers,
-                     "section_5": sec5_handlers,
-                     "section_6": sec6_handlers,
-                     "section_9": sec9_handlers}
-
+                "section_1": sec1_handlers,
+                "section_2": sec2_handlers,
+                "section_3": sec3_handlers,
+                "section_4": sec4_handlers,
+                "section_5": sec5_handlers,
+                "section_6": sec6_handlers,
+                "section_9": sec9_handlers
+                }
 
     def __str__(self):
-        def prettydict(d, indent = 0):
-            """
-            Print dict (of dict) pretty with indent
+        def prettydict(d, indent=0):
+            """Print dict (of dict) pretty with indent.
 
             Parameters
             ----------
@@ -1003,16 +337,28 @@ class synop(object):
                     prettydict(value, indent + 1)
                 else:
                     #print("\t" * (indent + 1) + str(value))
-                    print("\t" * indent + str(key) + ": " +  str(value))
+                    print("\t" * indent + str(key) + ": " + str(value))
             return
 
         prettydict(self.decoded)
 
         return
 
+    def convert_units(self):
+        """Convert units."""
+        #convert units if necessary
+        #use unit indicator of section_0
+        w_unit = self.decoded["section_0"]["wind_unit"]
+        wind_speed = self.decoded["section_1"]["wind_speed"]
+        knots_to_mps_factor = 0.51444444444444
+        if w_unit in ["knots estimate", "knots measured"]:
+            wind_speed = wind_speed * knots_to_mps_factor
+
+        self.decoded["section_0"]["wind_unit"] = "meters per second"
+        self.decoded["section_1"]["wind_speed"] = wind_speed
+
     def to_dict(self, vars=None):
-        """
-        Convert selected variables of report to a pandas dataframe
+        """Convert selected variables of report to a pandas dataframe.
 
         Parameters
         ----------
