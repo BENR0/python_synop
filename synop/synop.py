@@ -353,8 +353,15 @@ class synop(object):
         knots_to_mps_factor = 0.51444444444444
         if w_unit in ["knots estimate", "knots measured"]:
             wind_speed = wind_speed * knots_to_mps_factor
+        else:
+            return
 
-        self.decoded["section_0"]["wind_unit"] = "meters per second"
+        if "estimate" in w_unit:
+            new_wind_unit = "meters per second estimate"
+        else:
+            new_wind_unit = "meters per second measured"
+
+        self.decoded["section_0"]["wind_unit"] = new_wind_unit
         self.decoded["section_1"]["wind_speed"] = wind_speed
 
     def to_dict(self, vars=None):
