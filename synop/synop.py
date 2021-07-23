@@ -170,8 +170,8 @@ class synop(object):
     ----------
     [1] World Meteorological Organization (WMO). 2011. Manual on Codes - International Codes,
         Volume I.1, Annex II to the WMO Technical Regulations: Part A- Alphanumeric Codes.
-        2011 edition updated in 2017. WMO.
-    [2] Link to WMO manual on codes: https://community.wmo.int/activity-areas/wmo-codes/manual-codes#Codes
+        2011 edition updated in 2019. WMO.
+    [2] Link to WMO manual on codes: https://library.wmo.int/doc_num.php?explnum_id=10235
     [3] http://www.met.fu-berlin.de/~manfred/fm12.html
 
     Todo
