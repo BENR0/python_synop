@@ -12,7 +12,8 @@ handle_4Esss, handle_55SSS, handle_553SS, handle_7RRRR, handle_8NChh)
 
 _logger = logging.getLogger(__name__)
 
-#Syntax description
+#Syntax description (see Manual on codes pdf (Reference 2) page 9 ("Section A Code Forms") or reference 3)
+#For decoding single groups see Manual on codes "Section B Specification of Symbolic Letters"
 #section 0
 #MMMM D....D YYGGggi 99LLL QLLLL
 
