@@ -293,7 +293,7 @@ def handle_6RRRt(d):
             precip = 0.05
 
     RRRt = {"precip": precip,
-            "ref_time": precip_ref_time}
+            "precip_ref_time": precip_ref_time}
     return RRRt
 
 
@@ -466,26 +466,6 @@ def handle_553SS(d):
     if "rad_d_hours" in d and not d["rad_d_hours"] == "":
         d["rad_d_hours"] = d["rad_d_hours"] / 10.0
 
-    return d
-
-
-def handle_6RRRt(d):
-    """Handle 6RRRt group in section 3.
-
-    Melted precipitation.
-    Three hourly precipitation height.
-
-    NOTE: Only present if regulation 12.2.5.2 applies (see ref [1] A-24)
-
-    GG: hours
-    gg: minutes
-
-    Parameters
-    ----------
-    d : dict
-        re groupdict
-
-    """
     return d
 
 
