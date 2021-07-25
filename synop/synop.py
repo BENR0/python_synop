@@ -226,7 +226,7 @@ class synop(object):
             #if section is not none create dictionary for it
             self.decoded[sname] = {}
             for gname, graw in gd.items():
-                if gname not in ghandlers:
+                if gname not in ghandlers or graw == "":
                     continue
                 gpattern, ghandler = ghandlers[gname]
                 #if the group can be decoded directly without further regex pattern
