@@ -243,9 +243,9 @@ def handle_00fff(d):
     """
     ws = d["wind_speed"]
     if ws == "":
-        return {"wind_speed": np.nan}
+        return {"wind_speed_high": np.nan}
     else:
-        return {"wind_speed": int(ws)}
+        return {"wind_speed_high": int(ws)}
 
 
 def handle_5appp(d):
@@ -283,14 +283,20 @@ def handle_6RRRt(d):
         re groupdict
 
     """
-    precip_ref_time = T_CODE[d["t"]]
+    if d["t"] != "":
+        precip_ref_time = T_CODE[d["t"]]
+    else:
+        precip_ref_time = np.nan
 
-    precip = int(d["RRR"])
-    if precip > 989:
-        precip = (precip - 990) * 0.1
-        if precip == 0:
-            #only traces of precipitation not measurable < 0.05
-            precip = 0.05
+    if d["RRR"] != "":
+        precip = int(d["RRR"])
+        if precip > 989:
+            precip = (precip - 990) * 0.1
+            if precip == 0:
+                #only traces of precipitation not measurable < 0.05
+                precip = 0.05
+    else:
+        precip = np.nan
 
     RRRt = {"precip": precip,
             "precip_ref_time": precip_ref_time}
