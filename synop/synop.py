@@ -5,6 +5,7 @@
 import re
 import logging
 import numpy as np
+from collections import OrderedDict
 
 from .handlers import (default_handler, handle_MMMM, handle_wind_unit, handle_iihVV, handle_Nddff, handle_00fff,
 handle_sTTT, handle_PPPP, handle_5appp, handle_6RRRt, handle_7wwWW, handle_8NCCC, handle_9GGgg, handle_3EsTT,
@@ -226,7 +227,7 @@ class synop(object):
             #if section is not none create dictionary for it
             self.decoded[sname] = {}
             for gname, graw in gd.items():
-                if gname not in ghandlers or graw == "":
+                if gname not in ghandlers:
                     continue
                 gpattern, ghandler = ghandlers[gname]
                 #if the group can be decoded directly without further regex pattern
@@ -378,16 +379,15 @@ class synop(object):
         dict
 
         """
-        vardict = {}
+        if vars is None:
+            vars = self.decoded.keys()
 
+        vardict = OrderedDict.fromkeys(vars)
+
+        # self.decoded is dict of dicts with sections as keys
         for i in self.decoded.values():
             if i is not None:
-                vardict.update(i)
-
-        if vars is not None:
-            vardict = {x:y for x,y in vardict.items() if x in vars}
-
-        #print(vardict)
-        #print("===============")
+                tmp = {k:v for k, v in i.items() if k in vars}
+                vardict.update(tmp)
 
         return vardict
